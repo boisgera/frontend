@@ -8,9 +8,7 @@ export class Button {
   }
   view(vnode) {
     let attrs = vnode.attrs;
-    if (attrs.class === undefined) {
-      attrs.class = ""; 
-    } 
+    attrs.class = attrs.class || "", 
     attrs.class += " " + Button.sheet.button;
     return m("button", vnode.attrs, vnode.children);
   }

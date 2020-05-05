@@ -1,10 +1,10 @@
 import m from "mithril";
 import j2c from "j2c";
-import {installSheet} from "./utils.js"
+import {CSS} from "./utils.js"
 
 export class Button {
   static install() {
-    installSheet(Button.sheet);
+    CSS.install(Button.sheet);
   }
   view(vnode) {
     let attrs = vnode.attrs;

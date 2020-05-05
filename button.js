@@ -7,10 +7,10 @@ export class Button {
     CSS.install(Button.sheet);
   }
   view(vnode) {
-    let attrs = vnode.attrs;
+    let {attrs, children} = vnode;
     attrs.class = attrs.class || "", 
     attrs.class += " " + Button.sheet.button;
-    return m("button", vnode.attrs, vnode.children);
+    return m("button", attrs, children);
   }
 }
 

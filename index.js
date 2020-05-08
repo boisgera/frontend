@@ -15,11 +15,18 @@ function main() {
   }))
 
   Button.install();
+  Icon.install();
   let root = document.getElementById("main");
   typography.install();
   m.mount(root, {
     view: () => m("div", {style: {padding: "20px"}},
-      m(Button, m(Icon("settings"), {height: "16px", width: "16px"}), "Button") 
+      m(Button, 
+        m(Icon("settings"), {height: "16px", width: "16px"}), 
+        m("span","Button"),
+        m(Icon("chevron-down"), {height: "16px", width: "16px"}),
+        m("span", "Moar text"),
+        m(Icon("chevron-down"), {height: "16px", width: "16px"}), 
+        "kdskdj")
     )
   });
 }

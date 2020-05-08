@@ -7,7 +7,7 @@ let sheet = j2c.sheet({
       fontFamily: "Arial, sans-serif",
       fontSize: "16px",
       lineHeight: "24px",
-      color: "#607d8b",
+      // color: "#607d8b",
     }
   }
 });

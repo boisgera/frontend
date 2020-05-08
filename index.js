@@ -1,6 +1,7 @@
 import m from "mithril";
 import j2c from "j2c";
 import {Button} from "./button.js";
+import button from "./button.js";
 import {Icon} from "./icon.js";
 import {CSS} from "./utils";
 import typography from "./typography.js";
@@ -20,13 +21,13 @@ function main() {
   typography.install();
   m.mount(root, {
     view: () => m("div", {style: {padding: "20px"}},
-      m(Button, 
+      m(Button, {fluid: true, align: "right"},
         m(Icon("settings"), {height: "16px", width: "16px"}), 
         m("span","Button"),
         m(Icon("chevron-down"), {height: "16px", width: "16px"}),
         m("span", "Moar text"),
         m(Icon("chevron-down"), {height: "16px", width: "16px"}), 
-        "kdskdj")
+      )
     )
   });
 }

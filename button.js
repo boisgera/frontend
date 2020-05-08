@@ -14,8 +14,27 @@ export class Button {
   }
 }
 
+let buttonReset = {
+  border: "none",
+  background: "none",
+  font: "inherit",
+  color: "inherit",
+  padding: "0",
+  "&:focus": {
+    outline: "none"
+  },
+  "&::-moz-focus-inner": {
+    border: "0"
+  },
+}
+
 Button.sheet = j2c.sheet({
   ".button": {
-    color: "red"
+    ...buttonReset,
+    backgroundColor: "#f0f0f0",
+    display: "flex",
+    alignItems: "center",
   }
 });
+
+// TODO: style :hover, :focus, :active (in this order)

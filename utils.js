@@ -8,3 +8,5 @@ export class CSS {
     head.appendChild(style);
   }
 }
+
+export default {CSS}

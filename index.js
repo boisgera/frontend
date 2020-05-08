@@ -1,10 +1,28 @@
 import m from "mithril";
+import j2c from "j2c";
 import {Button} from "./button.js";
+import {Icon} from "./icon.js";
+import {CSS} from "./utils";
+import typography from "./typography.js";
 
 function main() {
+  CSS.install(j2c.sheet({
+    "@global": { 
+      "body": {
+        lineHeight: "24px",
+      }
+    }
+  }))
+
   Button.install();
   let root = document.getElementById("main");
-  m.mount(root, {view: () => m(Button, "Click")});
+  typography.install();
+  m.mount(root, {
+    view: () => m("div", {style: {padding: "20px"}},
+      m(Button, m(Icon("settings"), {height: "16px", width: "16px"}), "Button") 
+    )
+  });
 }
+// TODO: try flex in buttons for alignment. cf <https://stackoverflow.com/questions/22545325/how-to-vertically-align-text-with-icon-font>
 
 document.addEventListener("DOMContentLoaded", main);

@@ -40,8 +40,6 @@ export class Button extends Component {
   view(vnode) {
     let {attrs, children} = vnode;
 
-    //console.log("children:", children);
-    // TODO: detect raw text and wrap them in a span automatically.
     children = children.map((node) => {
       if (typeof node === "string") {
         return m("span", node);
@@ -50,49 +48,30 @@ export class Button extends Component {
       }
     });
 
-    let {fluid, align, ...htmlAttrs} = attrs;
+    let {
+      fluid, 
+      align, 
+      class: classes, 
+      style, 
+      ...otherAttrs // native HTML stuff
+    } = attrs;
 
-    let classes = [Button.css.button];
+    // CSS scoped CSS sheet
+    classes = join([classes || "", Button.css.button]);
 
-    // Dunno if it's better to use CSS or inline styles here.
-    // Well CSS, so that we can override this stuff (cutomize)
-    // and if we get rid of it, the default is back to standard settings.
-    // Wait, this is the same thing with view called each time ...
-    // So dunno. Honnestly, programming with inline style is much more
-    // straightforward, the logic is not spread in different places,
-    // the code is more compact, no duplication, etc...
-    // At this stage, I'd go for styles mostly, and style sheets only
-    // when it's required (pseudo-classes, etc.) and maybe for the more
-    // "static" part of the styling (?).
-    // Even the 'last-child' selector is a piece of shit that would be
-    // better codes in js. In a hook ?
-
-    /*
-    let style = {}
-    if (fluid) {
-      style.width = "100%";
-    }
-    if (align === "left") {
+    // Inline styles
+    style = style || {};
+    style.width = fluid ? "100%" : "auto";
+    align = align || "center";
+    if (align == "left") {
       style.justifyContent = "flex-start";
-    } else if (align === "right") {
+    } else if (align == "right") {
       style.justifyContent = "flex-end";
     } else {
       style.justifyContent = "center"; 
     }
-    */
 
-    if (fluid) {
-      classes.push(Button.css.fluid);
-    }
-    if (align === "left") {
-      classes.push(Button.css["align-left"])
-    } else if (align === "right") {
-      classes.push(Button.css["align-right"])
-    } else {
-      classes.push(Button.css["align-center"])
-    }
-
-    return m("button", {class: join(classes), ...htmlAttrs}, children);
+    return m("button", {class: classes, style, ...otherAttrs}, children);
   }
 }
 
@@ -126,27 +105,10 @@ let css = {
     backgroundColor: "#f0f0f0",
     display: "flex",
     alignItems: "center",
-    "& > *:not(:last-child)": {
+    "> *:not(:last-child)": {
       marginRight: "0.5em",
     },
   }
 }
-
-css = {...css,
-  ".fluid" : { width: "100%"},
-}
-
-css = {...css,
-  ".align-left" : {
-    justifyContent: "left",
-  },
-  ".align-right" : {
-    justifyContent: "right",
-  },
-  ".align-center": {
-    justifyContent: "center",
-  }
-}
-
 
 Button.css = j2c.sheet(css);

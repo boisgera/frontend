@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "button.js": "^1.0.1",
+    "feather-icon": "^0.1.0",
+    "feather-icons": "^4.28.0",
+    "j2c": "^0.11.3",
+    "mithril": "^2.0.4"
+  }
+}

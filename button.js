@@ -40,7 +40,8 @@ export class Button extends Component {
     // straightforward, the logic is not spread in different places,
     // the code is more compact, no duplication, etc...
     // At this stage, I'd go for styles mostly, and style sheets only
-    // when it's required (pseudo-classes, etc.)
+    // when it's required (pseudo-classes, etc.) and maybe for the more
+    // "static" part of the styling (?).
 
     /*
     let style = {}

@@ -1,6 +1,7 @@
 import m from "mithril";
 import j2c from "j2c";
-import {CSS} from "./utils.js"
+import {split, join} from "./utils.js"
+import {Component} from "./component.js"
 
 /*
 Issues :
@@ -24,18 +25,24 @@ All of this pleads for more attrs and no children (what construct ui is doing) ?
 // hover color: #eff0f1
 // disabled font color: #607d8b
 
-export class Button {
-  static install() {
-    CSS.install(css);
-  }
+export class Button extends Component {
   view(vnode) {
     let {attrs, children} = vnode;
     let {fluid, align, ...htmlAttrs} = attrs;
 
-    let class_ = attrs.class || "";
-    class_ += " " + css.button;
+    let classes = [Button.css.button];
 
     // Dunno if it's better to use CSS or inline styles here.
+    // Well CSS, so that we can override this stuff (cutomize)
+    // and if we get rid of it, the default is back to standard settings.
+    // Wait, this is the same thing with view called each time ...
+    // So dunno. Honnestly, programming with inline style is much more
+    // straightforward, the logic is not spread in different places,
+    // the code is more compact, no duplication, etc...
+    // At this stage, I'd go for styles mostly, and style sheets only
+    // when it's required (pseudo-classes, etc.)
+
+    /*
     let style = {}
     if (fluid) {
       style.width = "100%";
@@ -47,8 +54,20 @@ export class Button {
     } else {
       style.justifyContent = "center"; 
     }
+    */
 
-    return m("button", {class: class_, style, ...htmlAttrs}, children);
+    if (fluid) {
+      classes.push(Button.css.fluid);
+    }
+    if (align === "left") {
+      classes.push(Button.css["align-left"])
+    } else if (align === "right") {
+      classes.push(Button.css["align-right"])
+    } else {
+      classes.push(Button.css["align-center"])
+    }
+
+    return m("button", {class: join(classes), ...htmlAttrs}, children);
   }
 }
 
@@ -66,7 +85,7 @@ let reset = {
   },
 }
 
-let css = j2c.sheet({
+let css = {
   ".button": {
     ...reset,
     cursor: "pointer",
@@ -79,11 +98,24 @@ let css = j2c.sheet({
     "& > *:not(:last-child)": {
       marginRight: "0.5em",
     },
-    ".fluid" : {
-      width: "100%",
-    }
-
-
   }
-});
+}
 
+css = {...css,
+  ".fluid" : { width: "100%"},
+}
+
+css = {...css,
+  ".align-left" : {
+    justifyContent: "left",
+  },
+  ".align-right" : {
+    justifyContent: "right",
+  },
+  ".align-center": {
+    justifyContent: "center",
+  }
+}
+
+
+Button.css = j2c.sheet(css);

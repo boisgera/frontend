@@ -27,6 +27,9 @@ function main() {
         m(Icon("chevron-down"), {height: "16px", width: "16px"}),
         m("span", "Moar text"),
         m(Icon("chevron-down"), {height: "16px", width: "16px"}), 
+        "jlkjskdljs",
+        "DSLJHSLJHD",
+        m("span", "IN DA SPAN")
       )
     )
   });

@@ -100,7 +100,7 @@ let css = {
     // js module, with all relevant constants I guess. Spacing info, lineheight
     // to em ratio, colors, higher-order "styles" (sets of colors, "set of sizes", 
     // etc.)
-    padding: "0 0.75em",
+    padding: "0 1em",
     color: "#607d8b",
     backgroundColor: "#f0f0f0",
     display: "flex",

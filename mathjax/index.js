@@ -1,26 +1,18 @@
-window.MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']]
-  },
-  startup: {
-    ready: () => {
-      console.log('MathJax is loaded, but not yet initialized');
-      MathJax.startup.defaultReady();
-      console.log('MathJax is initialized, and the initial typeset is queued');
-    },
-    pageReady: () => {
-      MathJax.typeset(["#borg"]);
-    }
-  }
-};
+import m from "mithril";
+import {Math as M} from "./math.js";
+
+let content = "\\frac{1}{2} \\int"
 
 function main() {
-  let p = document.getElementById("borg");
+  M.install();
+  let body = document.getElementById("body");
+  m.mount(body, {"view": () => [
+    m("p", "text before ", m(M, {content}), " text after."),
+    m("button", {onclick: () => {
+      console.log("content:", content);
+      content = content + " \\blacksquare";}
+    }, "CLICK")
+  ]});
 }
 
-(function () {
-  var script = document.createElement('script');
-  script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js";
-  script.async = true;
-  document.head.appendChild(script);
-})();
+document.addEventListener("DOMContentLoaded", main);

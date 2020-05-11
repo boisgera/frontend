@@ -9,7 +9,7 @@ function main() {
   let body = document.getElementById("body");
   m.mount(body, {"view": () => [
     m("p", content),
-    m("p", "text before ", m(M, {content}), " text after."),
+    m("p", "text before ", [m(M, {key: content, content})], " text after."),
     m("button", {onclick: () => {
       console.log("content:", content);
       content = content + " \\blacksquare";}

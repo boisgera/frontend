@@ -7,7 +7,7 @@ function main() {
 
   typography.install();
 
-  let root = document.getElementsByTagName("main")[0];
+  let root = document.querySelector("main");
   m.mount(root, {
     view: () => [
       m(Section, {level:1, title: "Le titre du document"},

@@ -1,25 +1,16 @@
 import m from "mithril";
-import j2c from "j2c";
+
 import {Button} from "./button.js";
-import button from "./button.js";
 import {Sandbox} from "./sandbox.js";
 import {Icon} from "./icon.js";
-import {CSS} from "./utils";
 import typography from "./typography.js";
 
 function main() {
-  CSS.install(j2c.sheet({
-    "@global": { 
-      "body": {
-        lineHeight: "24px",
-      }
-    }
-  }))
-
   Button.install();
   Icon.install();
-  let root = document.getElementById("main");
   typography.install();
+
+  let root = document.getElementById("main");
   m.mount(root, {
     view: () => m("div", {style: {padding: "20px"}},
       m(Sandbox,   

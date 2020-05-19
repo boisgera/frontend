@@ -3,15 +3,19 @@ import m from "mithril";
 import feather from "feather-icons";
 import utils from "./utils.js"
 
-// TODO : generate all classes, programatically ? Easier not to use classes
-//        here I guess ...
+// TODO : Would need to generate once and for all all Icons as classes.
+//        We should NOT make a function that regenerate a new class
+//        since that would fuck up the way mithril works.
+//        Unless we cache the class that is returned that is ;
+//        then there would be no issue wrt mithril AFAICT.
+//        Except merely wrt "style" issues.
 
-export function Icon(name) {
-  return {
-    view: (vnode) => {
-      let icon = feather.icons[name].toSvg(vnode.attrs);
+export class Icon {
+  view({attrs}) {
+    let {name, ...otherAttrs} = attrs;
+    console.log("name:", name)
+    let icon = feather.icons[name].toSvg(otherAttrs);
       return m("span", {class: "icon"}, m.trust(icon));
-    }
   }
 }
 

@@ -3,5 +3,8 @@
     "feather-icons": "^4.28.0",
     "j2c": "^0.11.3",
     "mithril": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/mithril": "^2.0.3"
   }
 }

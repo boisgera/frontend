@@ -11,7 +11,7 @@ export class Sandbox {
     }
   }
   view(vnode) {
-    let {children, attr} = vnode;
+    let {children, attrs} = vnode;
     let style = {
       padding: "1.5em",
       display: "flex",
@@ -24,7 +24,9 @@ export class Sandbox {
       backgroundColor: "transparent",
       border: "1px dashed #cfd8dc",
     };
-    return m("div", {style, ...attr}, children); 
+    attrs.style = attrs.style || {};
+    attrs.style = {...attrs.style, ...style};
+    return m("div", attrs, children); 
   }
 
 };

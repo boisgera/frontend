@@ -1,7 +1,24 @@
 import m from "mithril";
 import j2c from "j2c";
-import {split, join} from "./utils.js"
-import {Component} from "./component.js"
+import {HTML, CSS, join, ValueError} from "./utils.js"
+
+
+/* Remark :
+   There is a general question that should be asked wrt the different
+   implementations options. It is : do I want the client to be able to
+   override this style / option ? And how ?
+
+   If this is a consequence of a choice by the user, say saying fluid=true
+   which sets the style width, then it's fine, I have no issue with overriding
+   the user choice of style width since its input is inconsistent.
+
+   The situation is different when a style that I apply is a default,
+   or rather a default that cannot be overriden. Then it would be nicer
+   to use something like a class style, since it can be overriden by the
+   user with an inline style. Of course the other option is to provide
+   attributes to disable the automatic styling.
+
+ */
 
 /* TODO
    wrt spacing of elements : put some margin-right on them once the DOM
@@ -23,7 +40,8 @@ Issues :
 
   - we cannot safely change the size & style of all sub-components,
 
-All of this pleads for more attrs and no children (what construct ui is doing) ?
+All of this pleads for more attrs and no children ? 
+(which is exactly what construct ui is doing ?) 
 
  */
 
@@ -36,10 +54,11 @@ All of this pleads for more attrs and no children (what construct ui is doing) ?
 // hover color: #eff0f1
 // disabled font color: #607d8b
 
-export class Button extends Component {
+export class Button {
   view(vnode) {
     let {attrs, children} = vnode;
 
+    // wrap text nodes in spans so that CSS last-child detection works.
     children = children.map((node) => {
       if (typeof node === "string") {
         return m("span", node);
@@ -49,32 +68,35 @@ export class Button extends Component {
     });
 
     let {
-      fluid, 
-      align, 
-      class: classes, 
-      style, 
+      fluid = false, 
+      align = "center", 
+      class: classes = "", 
+      style = {}, 
       ...otherAttrs // native HTML stuff
     } = attrs;
 
-    // CSS scoped CSS sheet
-    classes = join([classes || "", Button.css.button]);
+    // Scoped CSS sheet
+    classes = join([classes, Button.css.button]);
 
     // Inline styles
-    style = style || {};
     style.width = fluid ? "100%" : "auto";
-    align = align || "center";
     if (align == "left") {
       style.justifyContent = "flex-start";
     } else if (align == "right") {
       style.justifyContent = "flex-end";
-    } else {
+    } else if (align == "center") {
       style.justifyContent = "center"; 
+    } else {
+        throw new ValueError(`invalid alignment ${align}.`)
     }
 
+    //
     return m("button", {class: classes, style, ...otherAttrs}, children);
   }
 }
 
+// CSS 
+// -----------------------------------------------------------------------------
 let reset = {
   border: "none",
   background: "none",
@@ -93,13 +115,20 @@ let css = {
   ".button": {
     ...reset,
     cursor: "pointer",
-    height: "3em", // min-height would probably be better (think large symbol?)
+    minWidth: "3em",
+    minHeight: "3em", // min-height would probably be better (think large symbol?)
+
     // I really still don't know yet how the global settings should be shared ...
     // Here what i want is 2 x lineheight actually. How do I exchange the spacer
     // information ? I CERTAINLY don't want that as an option, it should be a
     // js module, with all relevant constants I guess. Spacing info, lineheight
     // to em ratio, colors, higher-order "styles" (sets of colors, "set of sizes", 
     // etc.)
+    // You know, in this respect em is not that bad.
+    // I just wish i could use a "line-height" unit.
+    // Well, I can if I declare a CSS variable `--lw` everytime the
+    // line-weight changes ! Ah fuck, that sucks. Or use line-height in calc ?
+    // Can't do. All this sucks big time.
     padding: "0 1em",
     color: "#607d8b",
     backgroundColor: "#f0f0f0",
@@ -112,3 +141,4 @@ let css = {
 }
 
 Button.css = j2c.sheet(css);
+HTML.ready(() => CSS.install(Button.css))

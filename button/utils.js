@@ -1,5 +1,5 @@
 
-
+// String/Array Join & Split
 export function split(string) {
   return string.split(/(\s+)/).filter(word => word.trim().length > 0);
 }
@@ -12,6 +12,18 @@ export function join(classes) {
     return expanded.join(" ");
 }
 
+// DOM Helper
+
+export class HTML {
+  static ready(callback) {
+    if (document.readyState !== "loading") {
+      callback();
+    } else {
+      document.addEventListener("DOMContentLoaded", callback);
+    }
+  }
+}
+
 export class CSS {
   static install(css) {
     let style = document.createElement("style");
@@ -22,4 +34,7 @@ export class CSS {
   }
 }
 
-export default {CSS}
+class ValueError extends Error {
+}
+
+export default {split, join, HTML, CSS, ValueError}

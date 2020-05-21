@@ -12,18 +12,19 @@ function main() {
   m.mount(root, {
     view: () => m("div", {style: {padding: "20px"}},
       m(Sandbox,
-        m(Button, "Click me", m(Icon, {name: "cpu"}), "please!"),   
+        m(Button, {onclick: () => console.log("clicked.")}, "Click me", m(Icon, {name: "cpu"}), "please!"),   
+        m(Button, {disabled: true, onclick: () => console.log("clicked.")}, "Click me", m(Icon, {name: "cpu"}), "please!"),   
         m(Button, m(Icon, {name: "settings"})),
         m(Button, {fluid: true},
           m(Icon, {name: "settings"}), 
           "Button"
         ),
         m(Button, {fluid: true, align: "right"},
-          m(Icon, {name: "settings", height: "16px", width: "16px"}), 
+          m(Icon, {name: "settings"}), 
           "Button",
-          m(Icon, {name: "chevron-down", height: "16px", width: "16px"}),
+          m(Icon, {name: "chevron-down"}),
           "Moar text",
-          m(Icon, {name: "chevron-down", height: "16px", width: "16px"}), 
+          m(Icon, {name: "chevron-down"}), 
           "jlkjskdljs",
           "DSLJHSLJHD",
           m("span", "IN DA SPAN")

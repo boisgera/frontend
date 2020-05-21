@@ -1,6 +1,6 @@
 import m from "mithril";
 import j2c from "j2c";
-import {HTML, CSS, join, ValueError} from "./utils.js"
+import {HTML, CSS, join, split, ValueError} from "./utils.js"
 
 
 /* Remark :
@@ -45,14 +45,16 @@ All of this pleads for more attrs and no children ?
 
  */
 
-// TODO: hover, disabled, active
-// TODO: controlled active ?
-// TODO: colors in :hover, :focus, :active (in this order)
-//
-// backgrounds
-// active color: #e7e8e9
-// hover color: #eff0f1
-// disabled font color: #607d8b
+/* Question wrt disabled : have it like an argument in the button view or as
+   an internal state ? The idiomatic answer here is probably make it a view
+   argument and store the state elsewhere, in the business logic.
+
+ */
+
+// TODO : round the corners,
+// TODO : modern vs outlined vs basic styles,
+// TODO : active (external) state parameter. Merge with disabled into "status" ?
+//        Dunno. Can't be "on" and "disabled" ? Yes it can ...
 
 export class Button {
   view(vnode) {
@@ -70,13 +72,24 @@ export class Button {
     let {
       fluid = false, 
       align = "center", 
+      disabled = false,
+      onclick = undefined,
       class: classes = "", 
       style = {}, 
       ...otherAttrs // native HTML stuff
     } = attrs;
 
     // Scoped CSS sheet
-    classes = join([classes, Button.css.button]);
+
+    console.log("classes:", classes);
+    classes = split(classes);
+    classes.push(Button.css.button);
+    if (disabled) {
+      console.log("DISABLED");
+      classes.push(Button.css["button-disabled"]);
+      onclick = undefined;
+    }
+    classes = join([classes])
 
     // Inline styles
     style.width = fluid ? "100%" : "auto";
@@ -91,7 +104,7 @@ export class Button {
     }
 
     //
-    return m("button", {class: classes, style, ...otherAttrs}, children);
+    return m("button", {class: classes, style, onclick, ...otherAttrs}, children);
   }
 }
 
@@ -131,12 +144,23 @@ let css = {
     // Can't do. All this sucks big time.
     padding: "0 1em",
     color: "#607d8b",
-    backgroundColor: "#f0f0f0",
     display: "flex",
     alignItems: "center",
     "> *:not(:last-child)": {
       marginRight: "0.5em",
     },
+
+    transition: "background .2s cubic-bezier(.4,1,.75,.9)",
+
+    backgroundColor: "transparent",
+    ":hover": {backgroundColor: "#f0f0f0"},
+    ":active": {backgroundColor: "#e7e8e9"},
+
+    ".button-disabled" : {
+      backgroundColor: "transparent",
+      opacity: 0.65,
+      cursor: "not-allowed", 
+    }
   }
 }
 

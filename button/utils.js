@@ -1,7 +1,18 @@
 
 // String/Array Join & Split
 export function split(string) {
-  return string.split(/(\s+)/).filter(word => word.trim().length > 0);
+  if (typeof(string) == "string") {
+    return string.split(/(\s+)/).filter(word => word.trim().length > 0);
+  } else if (Array.isArray(string)) {
+    return string;
+  } else if (typeof(string) == "object") {
+    let classes = [];
+    for (let [key, value] in Object.entries(classes)) {
+      if (value) { classes.append(key);}
+    }
+  } else {
+    throw new TypeError(`invalid argument ${string}`);
+  }
 }
 
 export function join(classes) {

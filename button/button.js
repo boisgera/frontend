@@ -72,6 +72,7 @@ export class Button {
     let {
       fluid = false, 
       align = "center", 
+      round = false,
       disabled = false,
       onclick = undefined,
       class: classes = "", 
@@ -103,7 +104,11 @@ export class Button {
         throw new ValueError(`invalid alignment ${align}.`)
     }
 
-    //
+    style.borderRadius = round ? "1.5em" : "3px";
+
+
+    // the box-shadow would need a common enclosing div and it fucks up 
+    // left right alignment as well as fluid modes ...
     return m("button", {class: classes, style, onclick, ...otherAttrs}, children);
   }
 }
@@ -128,6 +133,7 @@ let css = {
   ".button": {
     ...reset,
     cursor: "pointer",
+    borderRadius: "3px",
     minWidth: "3em",
     minHeight: "3em", // min-height would probably be better (think large symbol?)
 
@@ -150,11 +156,38 @@ let css = {
       marginRight: "0.5em",
     },
 
-    transition: "background .2s cubic-bezier(.4,1,.75,.9)",
+    transition: "background .2s cubic-bezier(.4,1,.75,.9), transform .2s cubic-bezier(.4,1,.75,.9)",
 
     backgroundColor: "transparent",
-    ":hover": {backgroundColor: "#f0f0f0"},
-    ":active": {backgroundColor: "#e7e8e9"},
+    ":hover": {
+      backgroundColor: "#f0f0f0",
+      boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+      transition: "0.3s ease-in-out",
+      transform: "translateY(-2px)"
+    },
+    ":active": {
+      backgroundColor: "#e7e8e9"
+    },
+
+
+    /* Pre-render the bigger shadow, but hide it */
+    // "::after": {
+    //   content: "''",
+    //   position: "absolute",
+    //   display: "block",
+    //   //zIndex: -1,
+    //   width: "100%",  // Nah, sucks here, the container is not tight.
+    //   height: "100%",
+    //   opacity: 1,
+    //   //borderRadius: "5px",
+    //   boxShadow: "0px 5px 5px rgba(0,0,0,1.0)",
+    //   //transition: "opacity 0.3s ease-in-out",
+    //},
+
+    /* Transition to showing the bigger shadow on hover */
+    //"::after": {
+    //  opacity: 1,
+    //},
 
     ".button-disabled" : {
       backgroundColor: "transparent",

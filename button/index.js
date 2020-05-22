@@ -12,9 +12,11 @@ function main() {
   m.mount(root, {
     view: () => m("div", {style: {padding: "20px"}},
       m(Sandbox,
+        m(Button, {round: true}, "Click me", m(Icon, {name: "cpu"}), "please!"),   
         m(Button, {onclick: () => console.log("clicked.")}, "Click me", m(Icon, {name: "cpu"}), "please!"),   
         m(Button, {disabled: true, onclick: () => console.log("clicked.")}, "Click me", m(Icon, {name: "cpu"}), "please!"),   
         m(Button, m(Icon, {name: "settings"})),
+        m(Button, {round: true}, m(Icon, {name: "settings"})),
         m(Button, {fluid: true},
           m(Icon, {name: "settings"}), 
           "Button"

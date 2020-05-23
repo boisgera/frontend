@@ -56,6 +56,12 @@ All of this pleads for more attrs and no children ?
 // TODO : active (external) state parameter. Merge with disabled into "status" ?
 //        Dunno. Can't be "on" and "disabled" ? Yes it can ...
 
+/* Issue with scoped CSS -- what happens when I try to combine state ?
+   To have a set of properties that are set only when several "state variable"
+   are set ?
+
+ */
+
 export class Button {
   view(vnode) {
     let {attrs, children} = vnode;
@@ -71,9 +77,11 @@ export class Button {
 
     let {
       fluid = false, 
-      align = "center", 
+      align = "center",
+      color = false, 
       round = false,
       disabled = false,
+      active = false,
       onclick = undefined,
       class: classes = "", 
       style = {}, 
@@ -81,14 +89,23 @@ export class Button {
     } = attrs;
 
     // Scoped CSS sheet
-
     console.log("classes:", classes);
     classes = split(classes);
     classes.push(Button.css.button);
     if (disabled) {
       console.log("DISABLED");
-      classes.push(Button.css["button-disabled"]);
+      classes.push(Button.css["button-disabled"]); // or just "disabled ?"
       onclick = undefined;
+    }
+    if (active) { // TODO : interaction between disabled and the rest of stats
+      classes.push(Button.css.active);
+    }
+    if (color) {
+      classes.push(Button.css.indigo); 
+      // it would probably be better to have the structure only in the CSS
+      // depending on CSS variables, and to set those in JS, in an inline
+      // style. The logic would be cleaner AFAICT. And we could do some
+      // dynamic styling if we wanted.
     }
     classes = join([classes])
 
@@ -156,43 +173,46 @@ let css = {
       marginRight: "0.5em",
     },
 
-    transition: "background .2s cubic-bezier(.4,1,.75,.9), transform .2s cubic-bezier(.4,1,.75,.9)",
+    transition: "background-color 0.3s cubic-bezier(.4,1,.75,.9), transform .2s cubic-bezier(.4,1,.75,.9)",
 
     backgroundColor: "transparent",
     ":hover": {
       backgroundColor: "#f0f0f0",
-      boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
-      transition: "0.3s ease-in-out",
-      transform: "translateY(-2px)"
+      //boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+      //transition: "0.3s ease-in-out",
+      //transform: "translateY(-2px)"
+    },
+    ":focus": {
+      //backgroundColor: "#e7e8e9"
     },
     ":active": {
       backgroundColor: "#e7e8e9"
     },
-
-
-    /* Pre-render the bigger shadow, but hide it */
-    // "::after": {
-    //   content: "''",
-    //   position: "absolute",
-    //   display: "block",
-    //   //zIndex: -1,
-    //   width: "100%",  // Nah, sucks here, the container is not tight.
-    //   height: "100%",
-    //   opacity: 1,
-    //   //borderRadius: "5px",
-    //   boxShadow: "0px 5px 5px rgba(0,0,0,1.0)",
-    //   //transition: "opacity 0.3s ease-in-out",
-    //},
-
-    /* Transition to showing the bigger shadow on hover */
-    //"::after": {
-    //  opacity: 1,
-    //},
+    ".active": {
+      backgroundColor: "#e7e8e9"
+    },
 
     ".button-disabled" : {
       backgroundColor: "transparent",
       opacity: 0.65,
       cursor: "not-allowed", 
+    },
+    ".indigo": {
+      ":hover": {
+        backgroundColor: "rgb(237, 242, 255)",
+        //boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+        //transition: "0.3s ease-in-out",
+        //transform: "translateY(-2px)"
+      },
+      ":focus": {
+        //backgroundColor: "rgb(219, 228, 255)"
+      },
+      ":active": {
+        backgroundColor: "rgb(219, 228, 255)"
+      },
+      ".active" :{
+        backgroundColor: "rgb(219, 228, 255)"
+      },
     }
   }
 }

@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "hyphenation.fr": "^0.2.1",
     "j2c": "^0.11.3",
-    "mithril": "^2.0.4"
+    "mithril": "^2.0.4",
+    "tex-linebreak": "^0.5.2"
   }
 }

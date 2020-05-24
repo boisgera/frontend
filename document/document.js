@@ -1,11 +1,38 @@
 import m from "mithril";
 
-// Who's gonna be responsible for spacing the headers & paragraphs ?
-// The section that holds them ? Themselves ?
+import frPatterns from 'hyphenation.fr';
+import { createHyphenator, justifyContent } from 'tex-linebreak';
+
+/*  Question 
+    ----------------------------------------------------------------------------
+    Who's gonna be responsible for spacing the headers & paragraphs ?
+    The section that holds them ? Themselves ?
+ */
+
+/* Bug
+   -----------------------------------------------------------------------------
+   Tex-linebreak doesn't work with run-ins so far.
+   It's probably the "display : online issue ?"
+ */
+
+/* Test / TODO
+   -----------------------------------------------------------------------------
+   Does tex-linebreak break with inline math or displaymath ?
+ */
+
 
 export class Paragraph {
+  oncreate(vnode) {
+    this.onupdate(vnode);
+  }
+  onupdate(vnode) {
+    const hyphenate = createHyphenator(frPatterns);
+    justifyContent([vnode.dom], hyphenate);
+  }
+
   view(vnode) {
     let {attrs, children} = vnode;
+
     attrs.style = {
       fontSize: "1em",
       marginTop: "0px",
@@ -50,12 +77,12 @@ export class Section {
       if (runIn) {
         headerStyle.display = "inline";
         headerStyle.marginRight = "1em";
-        console.log(children[0]);
+        //console.log(children[0]);
         // check that the first child tag is Paragraph.
-        let para = children[0];
-        attrs.style = para.attrs.style || {};
-        para.attrs.style = {...(para.attrs.style || {}), ...{display: "inline"}};
-        children[0] = m(Paragraph, m("h1", {style: headerStyle}, title), para)
+        let inpara = children[0].children;
+        //attrs.style = para.attrs.style || {};
+        //para.attrs.style = {...(para.attrs.style || {}), ...{display: "inline"}};
+        children[0] = m(Paragraph, m("h1", {style: headerStyle}, title), inpara)
         return m("section", {style}, children)
       }
     }

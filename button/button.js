@@ -60,6 +60,8 @@ All of this pleads for more attrs and no children ?
    To have a set of properties that are set only when several "state variable"
    are set ?
 
+   :active color should be inverted when active=true ? Would make sense ...
+
  */
 
 export class Button {

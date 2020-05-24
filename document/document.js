@@ -9,11 +9,21 @@ import { createHyphenator, justifyContent } from 'tex-linebreak';
     The section that holds them ? Themselves ?
  */
 
-/* Bug
+/* TODO
    -----------------------------------------------------------------------------
-   Tex-linebreak doesn't work with run-ins so far.
-   It's probably the "display : online issue ?"
+   Mettre la justification 'knuth-plass' en option, avec les autres options
+   classiques en parallèle et comparer comment ça se comporte.
+
+   Evaluer en particulier l'hyphenation, même si je réussis à en avoir avec
+   un seul mot répété, le fait qu'il n'y en ai AUCUNE dans un bloc de lorem 
+   ipsum en français assez long est tout de même suspect ...
  */
+
+/* TODO
+   -----------------------------------------------------------------------------
+   Check Knuth-plass en temps-réel avec un layout fluide et un resize hook ?
+ */
+
 
 /* Test / TODO
    -----------------------------------------------------------------------------

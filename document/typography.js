@@ -1,5 +1,5 @@
 import j2c from "j2c";
-import utils from "./utils.js"
+import { HTML, CSS } from "./utils.ts";
 
 let sheet = j2c.sheet({
   "@global": {
@@ -8,12 +8,9 @@ let sheet = j2c.sheet({
       fontSize: "16px",
       lineHeight: "24px",
       // color: "#607d8b",
-    }
-  }
+    },
+  },
 });
 
-export function install() {
-  utils.CSS.install(sheet);
-}
-
-export default {install}
+// This module is imported for its side-effects only:
+HTML.ready(() => CSS.install(sheet));

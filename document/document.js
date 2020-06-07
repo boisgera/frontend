@@ -1,7 +1,7 @@
 import m from "mithril";
 
-import frPatterns from 'hyphenation.fr';
-import { createHyphenator, justifyContent } from 'tex-linebreak';
+import frPatterns from "hyphenation.fr";
+import { createHyphenator, justifyContent } from "tex-linebreak";
 
 /*  Question 
     ----------------------------------------------------------------------------
@@ -24,13 +24,6 @@ import { createHyphenator, justifyContent } from 'tex-linebreak';
    Check Knuth-plass en temps-réel avec un layout fluide et un resize hook ?
  */
 
-
-/* Test / TODO
-   -----------------------------------------------------------------------------
-   Does tex-linebreak break with inline math or displaymath ?
- */
-
-
 export class Paragraph {
   oncreate(vnode) {
     this.onupdate(vnode);
@@ -41,14 +34,14 @@ export class Paragraph {
   }
 
   view(vnode) {
-    let {attrs, children} = vnode;
+    let { attrs, children } = vnode;
 
     attrs.style = {
       fontSize: "1em",
       marginTop: "0px",
       marginBottom: "1.5em",
-      ...(attrs.style || {})
-    }
+      ...(attrs.style || {}),
+    };
 
     return m("p", attrs, children);
   }
@@ -56,8 +49,8 @@ export class Paragraph {
 
 export class Section {
   view(vnode) {
-    let {attrs, children} = vnode;
-    let {title, level, runIn, style, ...htmlAttrs} = attrs;
+    let { attrs, children } = vnode;
+    let { title, level, runIn, style, ...htmlAttrs } = attrs;
     style = style | {};
     let headerStyle;
     if (level == 1) {
@@ -67,7 +60,7 @@ export class Section {
         fontWeight: "bold",
         marginTop: "0px",
         marginBottom: "1.5rem",
-      }
+      };
     } else if (level == 2) {
       headerStyle = {
         fontSize: Math.sqrt(2) + "em",
@@ -75,15 +68,16 @@ export class Section {
         fontWeight: "bold",
         marginTop: "0px",
         marginBottom: "1.5rem",
-      } 
-    } else if (level == 3) { // TODO (optionally ? "Run-in") // can I EMULATE display: run-in ?
+      };
+    } else if (level == 3) {
+      // TODO (optionally ? "Run-in") // can I EMULATE display: run-in ?
       headerStyle = {
         fontSize: "1em",
         lineHeight: "1.5em",
         fontWeight: "bold",
         //marginTop: "0px",
-        marginBottom: "0em"
-      }
+        marginBottom: "0em",
+      };
       if (runIn) {
         headerStyle.display = "inline";
         headerStyle.marginRight = "1em";
@@ -92,18 +86,27 @@ export class Section {
         let inpara = children[0].children;
         //attrs.style = para.attrs.style || {};
         //para.attrs.style = {...(para.attrs.style || {}), ...{display: "inline"}};
-        children[0] = m(Paragraph, m("h1", {style: headerStyle}, title), inpara)
-        return m("section", {style}, children)
+        children[0] = m(
+          Paragraph,
+          m("h1", { style: headerStyle }, title),
+          inpara
+        );
+        return m("section", { style }, children);
       }
     }
-    return m("section", {style}, m("h1", {style: headerStyle}, title), children);
+    return m(
+      "section",
+      { style },
+      m("h1", { style: headerStyle }, title),
+      children
+    );
   }
 }
 
 export class Header {
   view(vnode) {
-    let {attrs, children} = vnode;
-    let {level, ...htmlAttrs} = attrs;
+    let { attrs, children } = vnode;
+    let { level, ...htmlAttrs } = attrs;
     level = level || 1;
 
     let style;
@@ -113,31 +116,32 @@ export class Header {
         lineHeight: "1.5",
         fontWeight: "bold",
         marginTop: "0px",
-        marginBottom: "1.5rem"
-      }
+        marginBottom: "1.5rem",
+      };
     } else if (level == 2) {
       style = {
         fontSize: Math.sqrt(2) + "em",
         lineHeight: "1.5rem",
         fontWeight: "bold",
         marginTop: "0px",
-        marginBottom: "1.5rem"
-      } 
-    } else if (level == 3) { // TODO (optionally ? "Run-in") // can I EMULATE display: run-in ?
+        marginBottom: "1.5rem",
+      };
+    } else if (level == 3) {
+      // TODO (optionally ? "Run-in") // can I EMULATE display: run-in ?
       style = {
         fontSize: "1em",
         lineHeight: "1.5em",
         fontWeight: "bold",
         //marginTop: "0px",
         //marginBottom: "1.5rem"
-      }
+      };
     }
     htmlAttrs.style = {
       ...style,
-      ...(htmlAttrs.style || {})
-    }
-    return m("h"+level, htmlAttrs, children);
+      ...(htmlAttrs.style || {}),
+    };
+    return m("h" + level, htmlAttrs, children);
   }
 }
 
-export default {Header, Paragraph};
+export default { Header, Paragraph };

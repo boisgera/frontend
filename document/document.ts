@@ -150,5 +150,3 @@ export class Header {
     return m("h" + level, htmlAttrs, children);
   }
 }
-
-export default { Header, Paragraph };

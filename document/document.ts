@@ -23,6 +23,12 @@ import { createHyphenator, justifyContent } from "tex-linebreak";
    Check Knuth-plass en temps-réel avec un layout fluide et un resize hook ?
  */
 
+/* TODO
+   -----------------------------------------------------------------------------
+   See how to declare vnode to be of the appropriate type (link to stuff given
+   in the mithril types definition)
+ */
+
 export class Paragraph {
   oncreate(vnode) {
     this.onupdate(vnode);
@@ -32,7 +38,9 @@ export class Paragraph {
     justifyContent([vnode.dom], hyphenate);
   }
 
-  view(vnode) {
+  // the same annotation but in the ABOVE methods breaks the use of `Paragraph`
+  // below (far) ... whoot ?
+  view(vnode: m.Vnode<m.Attributes, this>): m.Children | null | void {
     let { attrs, children } = vnode;
 
     attrs.style = {
@@ -47,7 +55,7 @@ export class Paragraph {
 }
 
 export class Section {
-  view(vnode) {
+  view(vnode: m.Vnode<m.Attributes, this>) {
     let { attrs, children } = vnode;
     let { title, level, runIn, style, ...htmlAttrs } = attrs;
     style = style | {};

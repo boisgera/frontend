@@ -29,20 +29,30 @@ import { createHyphenator, justifyContent } from "tex-linebreak";
    in the mithril types definition)
  */
 
-export class Paragraph {
-  oncreate(vnode) {
+interface ParagraphAttrs {
+  [htmlAttr: string]: any;
+}
+
+type ParagraphVnode = m.CVnode<ParagraphAttrs>;
+type ParagraphVnodeDOM = m.CVnodeDOM<ParagraphAttrs>;
+
+export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
+  oncreate(vnode: ParagraphVnodeDOM) {
     this.onupdate(vnode);
   }
-  onupdate(vnode) {
+  onupdate(vnode: ParagraphVnodeDOM) {
     const hyphenate = createHyphenator(frPatterns);
     justifyContent([vnode.dom], hyphenate);
   }
 
   // the same annotation but in the ABOVE methods breaks the use of `Paragraph`
   // below (far) ... whoot ?
-  view(vnode: m.Vnode<m.Attributes, this>): m.Children | null | void {
+  view(vnode: ParagraphVnode): m.Children | null | void {
     let { attrs, children } = vnode;
 
+    // Using the official mithril bindings, style is any (if defined) ?
+    // This is a bit weird ; even for "native" components its structured 
+    // is not defined AFAICT.
     attrs.style = {
       fontSize: "1em",
       marginTop: "0px",
@@ -54,11 +64,33 @@ export class Paragraph {
   }
 }
 
-export class Section {
-  view(vnode: m.Vnode<m.Attributes, this>) {
+// There is an issue here, since in the constructor mithril accept data under
+// several forms (say style as a string or an object), but when it gives it
+// back, thats under a normalized form (always the object AFAICT). So the
+// constructor and the other methods do not have the same "Attrs" type.
+// Erf, so we need TWO Attrs classes ; at least the derivation scheme allows
+// the strict one to be a variant of the lose one.
+
+// The two-layer definition is not strictly required here since we have no
+// constructor.
+interface SectionLoseAttrs {
+  title: string;
+  level: number;
+  runIn?: boolean;
+  style?: string | { [_: string]: string };
+  [htmlAttr: string]: any;
+}
+
+interface SectionAttrs extends SectionLoseAttrs {
+  style?: { [_: string]: string };
+}
+
+type SectionVnode = m.CVnode<SectionAttrs>;
+
+export class Section implements m.ClassComponent<SectionAttrs> {
+  view(vnode: SectionVnode) {
     let { attrs, children } = vnode;
-    let { title, level, runIn, style, ...htmlAttrs } = attrs;
-    style = style | {};
+    let { title, level, runIn = false, style = {}, ...htmlAttrs } = attrs;
     let headerStyle;
     if (level == 1) {
       headerStyle = {

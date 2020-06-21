@@ -2,6 +2,7 @@ import m from "mithril";
 import j2c from "j2c";
 import "./typography";
 import { Section, Paragraph } from "./document";
+import { HTML } from "./utils";
 
 function main() {
   let root = document.querySelector("main");
@@ -67,4 +68,4 @@ function main() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", main);
+HTML.ready(main);

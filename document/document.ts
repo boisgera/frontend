@@ -71,6 +71,10 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
 // Erf, so we need TWO Attrs classes ; at least the derivation scheme allows
 // the strict one to be a variant of the lose one.
 
+// Mmm is the normalisation of styles also true for custom components ?
+// Or only for native ones ? Anyway this is probably the habits that
+// programmers take.
+
 // The two-layer definition is not strictly required here since we have no
 // constructor.
 interface SectionLoseAttrs {

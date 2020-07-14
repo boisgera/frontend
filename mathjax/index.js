@@ -1,5 +1,5 @@
 import m from "mithril";
-import { MathJax } from "./mathjax.js";
+import { MathJax } from "./mathjax.ts";
 
 let content = String.raw`\frac{1}{2} \int`;
 

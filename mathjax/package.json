@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "mithril": "^2.0.4"
+    "@types/mithril": "^2.0.3",
+    "mithril": "^2.0.4",
+    "utils": "^0.3.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.6"
   }
 }

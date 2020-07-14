@@ -6,6 +6,7 @@ interface MathJaxObject {
     pageReady? : () => void;
     [_: string]: any;
   }
+  // see <http://docs.mathjax.org/en/latest/web/typeset.html>
   typeset?: (elements_or_selectors?: (Element | string)[]) => void;
 }
 

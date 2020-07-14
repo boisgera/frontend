@@ -22,9 +22,8 @@ HTML.ready(() => {
         window.MathJax.typeset(); 
         // schedule a typeset when a MathJax component is updated
         MathJax.prototype.onupdate = function (vnode) {
-            window.MathJax.typeset([vnode.dom]); // test that this works as intended (not global)
-            // I am not sure of it anymore ...
-            m.redraw();
+            console.log("*")
+            window.MathJax.typeset([vnode.dom]);
         }
       },
     },
@@ -45,7 +44,7 @@ export class MathJax implements m.ClassComponent<Attrs> {
     this.onupdate(vnode);
   }
 
-  onupdate(vnode: m.CVnodeDOM<Attrs>) {} // will be overriden in MathJax startup.
+  onupdate(vnode: m.CVnodeDOM<Attrs>) { } // will be overriden in MathJax startup.
 
   view(vnode: m.CVnode<Attrs>) {
     let { attrs } = vnode; 
@@ -55,12 +54,25 @@ export class MathJax implements m.ClassComponent<Attrs> {
     } else { // display === "block"
       content = String.raw`\[${content}\]`;
     }
-  return [m("span", { key: content }, content)];
+  return [m("span", { /*key: content*/ }, content)];
   }
 }
 
 // I don't remember what the justification for the key is ... 
 // think about it then explain it here. Related to the use of a fragment
 // above (won't work otherwise, the mathjax won't update).
+// The stuff forces the recreation of a new node if the content changes
+// but why would it matter ? Otherwise we reuse the old one and so what ?
+// Why is there no change ?
+// Ah, OK, I think I see : mithril is diffing the data and applying 
+// what he believes to be the (minimal) right change to the DOM node ;
+// But in the meantime, Mathjax has totally change the node, there is no
+// reason that what mithril does is appropriate (that it can change something
+// given the structural change or that the change would be interpretable by
+// mathjax typeset after the fact). --> the safe way is to recreate the DOM
+// node from the data from scratch.
+//
+// TODO: have a look at mithril render.js to see what the diffing is doing ?
+//       This is quite complex :(
 
 export default { MathJax };

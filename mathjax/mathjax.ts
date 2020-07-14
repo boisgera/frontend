@@ -55,7 +55,7 @@ export class MathJax implements m.ClassComponent<Attrs> {
     } else { // display === "block"
       content = String.raw`\[${content}\]`;
     }
-    return [m("span", { key: content }, content)];
+  return [m("span", { key: content }, content)];
   }
 }
 

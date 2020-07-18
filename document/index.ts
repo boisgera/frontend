@@ -1,11 +1,11 @@
 import m from "mithril";
-import j2c from "j2c";
 import "./typography";
 import { Section, Paragraph } from "./document";
-import { HTML } from "./utils";
+import { assert, HTML } from "./utils";
 
 function main() {
   let root = document.querySelector("main");
+  assert(root !== null);
   m.mount(root, {
     view: () => [
       m(

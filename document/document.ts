@@ -1,5 +1,7 @@
 import m from "mithril";
+import "./hyphenation.fr";
 import frPatterns from "hyphenation.fr";
+import "./tex_linebreak";
 import { createHyphenator, justifyContent } from "tex-linebreak";
 
 /*  Question 
@@ -33,25 +35,25 @@ interface ParagraphAttrs {
   [htmlAttr: string]: any;
 }
 
-type ParagraphVnode = m.CVnode<ParagraphAttrs>;
-type ParagraphVnodeDOM = m.CVnodeDOM<ParagraphAttrs>;
+type ParagraphVNode = m.CVnode<ParagraphAttrs>;
+type ParagraphVNodeDOM = m.CVnodeDOM<ParagraphAttrs>;
 
 export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
-  oncreate(vnode: ParagraphVnodeDOM) {
+  oncreate(vnode: ParagraphVNodeDOM) {
     this.onupdate(vnode);
   }
-  onupdate(vnode: ParagraphVnodeDOM) {
+  onupdate(vnode: ParagraphVNodeDOM) {
     const hyphenate = createHyphenator(frPatterns);
     justifyContent([vnode.dom], hyphenate);
   }
 
   // the same annotation but in the ABOVE methods breaks the use of `Paragraph`
   // below (far) ... whoot ?
-  view(vnode: ParagraphVnode): m.Children | null | void {
+  view(vnode: ParagraphVNode): m.Children | null | void {
     let { attrs, children } = vnode;
 
     // Using the official mithril bindings, style is any (if defined) ?
-    // This is a bit weird ; even for "native" components its structured 
+    // This is a bit weird ; even for "native" components its structured
     // is not defined AFAICT.
     attrs.style = {
       fontSize: "1em",
@@ -79,7 +81,7 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
 // constructor.
 interface SectionLoseAttrs {
   title: string;
-  level: number;
+  level?: 1 | 2 | 3 | 4 | 5 | 6 ;
   runIn?: boolean;
   style?: string | { [_: string]: string };
   [htmlAttr: string]: any;
@@ -89,13 +91,13 @@ interface SectionAttrs extends SectionLoseAttrs {
   style?: { [_: string]: string };
 }
 
-type SectionVnode = m.CVnode<SectionAttrs>;
+interface SectionVNode extends m.CVnode<SectionAttrs> {};
 
 export class Section implements m.ClassComponent<SectionAttrs> {
-  view(vnode: SectionVnode) {
+  view(vnode: SectionVNode) {
     let { attrs, children } = vnode;
-    let { title, level, runIn = false, style = {}, ...htmlAttrs } = attrs;
-    let headerStyle;
+    let { title, level = 1, runIn = false, style = {}, ...htmlAttrs } = attrs;
+    let headerStyle: {[key: string] : string};
     if (level == 1) {
       headerStyle = {
         fontSize: "2em",
@@ -146,13 +148,16 @@ export class Section implements m.ClassComponent<SectionAttrs> {
   }
 }
 
-export class Header {
-  view(vnode) {
-    let { attrs, children } = vnode;
-    let { level, ...htmlAttrs } = attrs;
-    level = level || 1;
+interface HeaderAttrs {
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+}
 
-    let style;
+export class Header implements m.ClassComponent<HeaderAttrs> {
+  view(vnode: m.CVnode<HeaderAttrs>) {
+    let { attrs, children } = vnode;
+    let { level = 1, ...htmlAttrs } = attrs;
+
+    let style : object;
     if (level == 1) {
       style = {
         fontSize: "2em",

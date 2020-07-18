@@ -1,7 +1,11 @@
 {
-  "compilerOptions": {
-    "allowJs": true,
-    "esModuleInterop": true,
-    "lib": ["es2017", "dom"]
-  }
+    "compilerOptions": {
+        "strict": true,
+        "allowSyntheticDefaultImports": true,
+        "lib": [
+            "es2017",
+            "dom"
+        ]
+    },
+    "files": ["index.ts", "mathjax.ts", "utils.ts"]
 }

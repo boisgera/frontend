@@ -1,30 +1,65 @@
 import m from "mithril";
-import { HTML } from "./utils";
+import { HTML, assert, AssertionError } from "./utils";
+const r = String.raw;
+
+// MathJax Type Definitions
+// -----------------------------------------------------------------------------
+
+// Source: <http://docs.mathjax.org/en/latest/options/startup/startup.html>
+interface Startup {
+  elements?: any; // The elements to typeset (default is document body)
+  typeset?: boolean; // Perform initial typeset?
+  ready?: () => void; // Called when components are loaded
+  pageReady?: () => void; // Called when MathJax and page are ready
+  document?: any; // The document (or fragment or string) to work in
+  input?: any; // The names of the input jax to use from among those loaded
+  output?: any; // The name for the output jax to use from among those loaded
+  handler?: any; // The name of the handler to register from among those loaded
+  adaptor?: any; // The name for the DOM adaptor to use from among those loaded
+}
+
+// Source: <http://docs.mathjax.org/en/latest/web/typeset.html>
+interface Typesetter {
+  (elements_or_selectors?: (Element | string)[]): void;
+}
 
 interface MathJaxObject {
-  startup?: {
-    pageReady? : () => void;
-    [_: string]: any;
-  }
-  // see <http://docs.mathjax.org/en/latest/web/typeset.html>
-  typeset?: (elements_or_selectors?: (Element | string)[]) => void;
+  startup?: Startup;
+  typeset?: Typesetter;
+  [_: string]: any;
+}
+
+interface MathJaxObjectLoaded extends MathJaxObject {
+  typeset: Typesetter;
 }
 
 declare global {
-  interface Window { MathJax: MathJaxObject; }
+  interface Window {
+    MathJax: MathJaxObject;
+  }
 }
 
+function assert_MathJax_is_loaded(
+  mathjax: MathJaxObject
+): asserts mathjax is MathJaxObjectLoaded {
+  if (window.MathJax.typeset === undefined) {
+    throw new AssertionError("MathJax window object not loaded yet");
+  }
+}
+
+// -----------------------------------------------------------------------------
 HTML.ready(() => {
   window.MathJax = {
     startup: {
       pageReady: () => {
         // schedule a global typeset to begin with
-        window.MathJax.typeset(); 
-        // schedule a typeset when a MathJax component is updated
+        assert_MathJax_is_loaded(window.MathJax);
+        window.MathJax.typeset();
+        // schedule a typeset when a MathJax (mithril) component is updated
         MathJax.prototype.onupdate = function (vnode) {
-            console.log("*")
-            window.MathJax.typeset([vnode.dom]);
-        }
+          assert_MathJax_is_loaded(window.MathJax);
+          window.MathJax.typeset([vnode.dom]);
+        };
       },
     },
   };
@@ -34,37 +69,49 @@ HTML.ready(() => {
   document.head.appendChild(script);
 });
 
-interface Attrs {
+export interface Attrs {
   content: string;
   display?: "inline" | "block";
 }
 
-export class MathJax implements m.ClassComponent<Attrs> {
-  oncreate(vnode: m.CVnodeDOM<Attrs>) {
+type Component = m.ClassComponent<Attrs>;
+type VNode = m.CVnode<Attrs>;
+type VNodeDOM = m.CVnodeDOM<Attrs>;
+
+export class MathJax implements Component {
+  oncreate(vnode: VNodeDOM) {
     this.onupdate(vnode);
   }
 
-  onupdate(vnode: m.CVnodeDOM<Attrs>) { } // will be overriden in MathJax startup.
+  onupdate(vnode: VNodeDOM) {} // will be overriden in MathJax startup.
 
-  view(vnode: m.CVnode<Attrs>) {
-    let { attrs } = vnode; 
+  view(vnode: VNode) {
+    let { attrs } = vnode;
     let { display = "inline", content } = attrs;
     if (display === "inline") {
-      content = `\\(${content}\\)`;
+      content = r`\(${content}\)`;
     } else { // display === "block"
-      content = String.raw`\[${content}\]`;
+      content = r`\[${content}\]`;
     }
-  return [m("span", { /*key: content*/ }, content)];
+    return [
+      m(
+        "span",
+        {
+          key: content,
+        },
+        content
+      ),
+    ];
   }
 }
 
-// I don't remember what the justification for the key is ... 
+// I don't remember what the justification for the key is ...
 // think about it then explain it here. Related to the use of a fragment
 // above (won't work otherwise, the mathjax won't update).
 // The stuff forces the recreation of a new node if the content changes
 // but why would it matter ? Otherwise we reuse the old one and so what ?
 // Why is there no change ?
-// Ah, OK, I think I see : mithril is diffing the data and applying 
+// Ah, OK, I think I see : mithril is diffing the data and applying
 // what he believes to be the (minimal) right change to the DOM node ;
 // But in the meantime, Mathjax has totally change the node, there is no
 // reason that what mithril does is appropriate (that it can change something

@@ -1,6 +1,6 @@
 import m from "mithril";
 import { MathJax } from "./mathjax";
- 
+
 let content = String.raw`\frac{1}{2} \int`;
 
 function main() {

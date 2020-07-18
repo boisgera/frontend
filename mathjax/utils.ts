@@ -1,3 +1,13 @@
+// Typescript Helpers
+// -----------------------------------------------------------------------------
+export class AssertionError extends Error {}
+
+export function assert(condition: any, msg?: string): asserts condition {
+  if (!condition) {
+    throw new AssertionError(msg);
+  }
+}
+
 // String & Array Helpers
 // -----------------------------------------------------------------------------
 
@@ -16,8 +26,8 @@ export function split(string: string | { [s: string]: boolean }): string[] {
       if (value) {
         classes.push(key);
       }
-      return classes;
     }
+    return classes;
   } else {
     throw new TypeError(`invalid argument ${string}`);
   }
@@ -26,7 +36,7 @@ export function split(string: string | { [s: string]: boolean }): string[] {
 /**
  * Joins words into a string
  */
-export function join(classes: string[] | (string | string[])[]) {
+export function join(classes: (string | string[])[]) {
   let expanded: string[] = [];
   for (let cls of classes) {
     let newClasses: string[] = [];

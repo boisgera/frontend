@@ -2,6 +2,7 @@ import m from "mithril";
 import "./missing_declarations";
 import frPatterns from "hyphenation.fr";
 import { createHyphenator, justifyContent } from "tex-linebreak";
+import { ValueError } from "./utils";
 
 /*  Question 
     ----------------------------------------------------------------------------
@@ -92,11 +93,39 @@ interface SectionAttrs extends SectionLoseAttrs {
 
 interface SectionVNode extends m.CVnode<SectionAttrs> {}
 
+
+
+interface NonEmptyChildArray extends m.ChildArray {
+  0: m.Vnode<any, any>;    
+}
+
+// TODO : change this for a function that performs the runtime check or throws
+//        and otherwise return the same argument with a proper TS type ?
+
+function starts_with_Paragraph(children: m.Children) {
+  if (!Array.isArray(children)) {
+    return false;
+  }
+  children = children as m.ChildArray;
+  if (children.length == 0) {
+    return false;
+  }
+  let first = children[0];
+  if (!(typeof first === "object")) {
+    return false;
+  }
+  first = first as m.Vnode<any, any>;
+  if (!(first.tag === Paragraph)) {
+    return false;
+  }
+  return true;
+}
+
 export class Section implements m.ClassComponent<SectionAttrs> {
   view(vnode: SectionVNode) {
     let { attrs, children } = vnode;
     let { title, level = 1, runIn = false, style = {}, ...htmlAttrs } = attrs;
-    let headerStyle: { [key: string]: string };
+    let headerStyle: { [key: string]: string } = {};
     if (level == 1) {
       headerStyle = {
         fontSize: "2em",
@@ -125,12 +154,18 @@ export class Section implements m.ClassComponent<SectionAttrs> {
       if (runIn) {
         headerStyle.display = "inline";
         headerStyle.marginRight = "1em";
-        //console.log(children[0]);
-        // check that the first child tag is Paragraph.
-        let inpara = children[0].children;
-        //attrs.style = para.attrs.style || {};
-        //para.attrs.style = {...(para.attrs.style || {}), ...{display: "inline"}};
-        children[0] = m(
+
+        // Shit the typechecking (compile-time and runtime) is a mess here ...
+        let checkedChildren : NonEmptyChildArray;
+        if (!(starts_with_Paragraph(children))) {
+          throw new ValueError();
+        } else {
+          checkedChildren = children as NonEmptyChildArray;
+        }
+        // The stuff should be wrapped in a function I guess.
+
+        let inpara = checkedChildren[0].children;
+        checkedChildren[0] = m(
           Paragraph,
           m("h1", { style: headerStyle }, title),
           inpara
@@ -149,6 +184,8 @@ export class Section implements m.ClassComponent<SectionAttrs> {
 
 interface HeaderAttrs {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
+  style?: {[key: string]: string};
+  [htmlAttr: string]: any;
 }
 
 export class Header implements m.ClassComponent<HeaderAttrs> {
@@ -156,7 +193,7 @@ export class Header implements m.ClassComponent<HeaderAttrs> {
     let { attrs, children } = vnode;
     let { level = 1, ...htmlAttrs } = attrs;
 
-    let style: object;
+    let style: object = {};
     if (level == 1) {
       style = {
         fontSize: "2em",

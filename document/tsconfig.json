@@ -7,5 +7,5 @@
             "dom"
         ]
     },
-    "files": ["index.ts", "mathjax.ts", "utils.ts"]
+    "files": ["index.ts", "document.ts", "typography.ts", "missing_declarations.ts", "utils.ts"]
 }

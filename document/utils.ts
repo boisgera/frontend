@@ -70,11 +70,13 @@ export class CSS {
    */
   static install(css: string) {
     let style = document.createElement("style");
-    style.type = "text/css";
+    //style.type = "text/css";
     style.appendChild(document.createTextNode(css));
     let head = document.getElementsByTagName("head")[0];
     head.appendChild(style);
   }
 }
 
-class ValueError extends Error {}
+export class TypeError extends Error {};
+
+export class ValueError extends Error {};

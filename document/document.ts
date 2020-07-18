@@ -1,7 +1,6 @@
 import m from "mithril";
-import "./hyphenation.fr";
+import "./missing_declarations";
 import frPatterns from "hyphenation.fr";
-import "./tex_linebreak";
 import { createHyphenator, justifyContent } from "tex-linebreak";
 
 /*  Question 

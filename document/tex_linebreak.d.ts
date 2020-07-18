@@ -5,3 +5,6 @@ declare module "tex-linebreak" {
   let createHyphenator: Hyphenator;
   function justifyContent(elts: Element[], hyphenator: Hyphenator): void;
 }
+
+declare module "hyphenation.fr" {
+}

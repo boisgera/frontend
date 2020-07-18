@@ -1,3 +1,1 @@
-declare module "hyphenation.fr" {
-    
-};
+declare module "hyphenation.fr" {}

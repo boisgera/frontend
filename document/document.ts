@@ -81,7 +81,7 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
 // constructor.
 interface SectionLoseAttrs {
   title: string;
-  level?: 1 | 2 | 3 | 4 | 5 | 6 ;
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
   runIn?: boolean;
   style?: string | { [_: string]: string };
   [htmlAttr: string]: any;
@@ -91,13 +91,13 @@ interface SectionAttrs extends SectionLoseAttrs {
   style?: { [_: string]: string };
 }
 
-interface SectionVNode extends m.CVnode<SectionAttrs> {};
+interface SectionVNode extends m.CVnode<SectionAttrs> {}
 
 export class Section implements m.ClassComponent<SectionAttrs> {
   view(vnode: SectionVNode) {
     let { attrs, children } = vnode;
     let { title, level = 1, runIn = false, style = {}, ...htmlAttrs } = attrs;
-    let headerStyle: {[key: string] : string};
+    let headerStyle: { [key: string]: string };
     if (level == 1) {
       headerStyle = {
         fontSize: "2em",
@@ -157,7 +157,7 @@ export class Header implements m.ClassComponent<HeaderAttrs> {
     let { attrs, children } = vnode;
     let { level = 1, ...htmlAttrs } = attrs;
 
-    let style : object;
+    let style: object;
     if (level == 1) {
       style = {
         fontSize: "2em",

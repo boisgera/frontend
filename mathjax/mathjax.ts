@@ -90,7 +90,8 @@ export class MathJax implements Component {
     let { display = "inline", content } = attrs;
     if (display === "inline") {
       content = r`\(${content}\)`;
-    } else { // display === "block"
+    } else {
+      // display === "block"
       content = r`\[${content}\]`;
     }
     return [

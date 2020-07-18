@@ -1,7 +1,9 @@
 import m from "mithril";
 import { MathJax } from "./mathjax";
+import { HTML } from "./utils";
+const r = String.raw;
 
-let content = String.raw`\frac{1}{2} \int`;
+let content = r`\frac{1}{2} \int`;
 
 function main() {
   let body = document.body;
@@ -22,7 +24,7 @@ function main() {
         {
           onclick: () => {
             console.log("content:", content);
-            content = content + String.raw` \blacksquare`;
+            content = content + r` \blacksquare`;
           },
         },
         "CLICK"
@@ -31,4 +33,4 @@ function main() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", main);
+HTML.ready(main);

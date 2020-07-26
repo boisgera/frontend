@@ -49,6 +49,8 @@ function assert_MathJax_is_loaded(
 
 // -----------------------------------------------------------------------------
 HTML.ready(() => {
+  window.MathJax = {};
+  /*
   window.MathJax = {
     startup: {
       pageReady: () => {
@@ -62,12 +64,13 @@ HTML.ready(() => {
         };
       },
     },
-  };
+  };*/
   let script = document.createElement("script");
   script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
   script.async = true;
   document.head.appendChild(script);
 });
+
 
 export interface Attrs {
   content: string;
@@ -79,11 +82,22 @@ type VNode = m.CVnode<Attrs>;
 type VNodeDOM = m.CVnodeDOM<Attrs>;
 
 export class MathJax implements Component {
+  content: string | undefined; 
+
   oncreate(vnode: VNodeDOM) {
     this.onupdate(vnode);
   }
 
-  onupdate(vnode: VNodeDOM) {} // will be overriden in MathJax startup.
+  onupdate(vnode: VNodeDOM) {
+    if (window.MathJax.typeset) {
+      let content = vnode.attrs.content;
+      if (content !== this.content) {
+        this.content = content;
+        window.MathJax.typeset([vnode.dom]);
+        console.log("content:", content);
+      }
+    }
+  }
 
   view(vnode: VNode) {
     let { attrs } = vnode;
@@ -98,7 +112,7 @@ export class MathJax implements Component {
       m(
         "span",
         {
-          key: content,
+          /*key: content*/
         },
         content
       ),

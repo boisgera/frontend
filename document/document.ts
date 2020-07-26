@@ -1,7 +1,13 @@
 import m from "mithril";
-import "./missing_declarations";
+import "./missing_declarations"; // Typescript stuff
+
 import frPatterns from "hyphenation.fr";
 import { createHyphenator, justifyContent } from "tex-linebreak";
+const hyphenate = createHyphenator(frPatterns);
+function justify(...nodes: Element[]) {
+  justifyContent(nodes, hyphenate);
+}
+
 import { ValueError } from "./utils";
 
 /*  Question 
@@ -32,25 +38,34 @@ import { ValueError } from "./utils";
  */
 
 interface ParagraphAttrs {
+  justify: boolean; 
   [htmlAttr: string]: any;
 }
 
 type ParagraphVNode = m.CVnode<ParagraphAttrs>;
 type ParagraphVNodeDOM = m.CVnodeDOM<ParagraphAttrs>;
 
+
+
 export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
+
+  justify: boolean = false;
+
   oncreate(vnode: ParagraphVNodeDOM) {
     this.onupdate(vnode);
   }
   onupdate(vnode: ParagraphVNodeDOM) {
-    const hyphenate = createHyphenator(frPatterns);
-    justifyContent([vnode.dom], hyphenate);
+    if (this.justify) {
+      console.log("j"); 
+      justify(vnode.dom);
+    }
   }
 
   // the same annotation but in the ABOVE methods breaks the use of `Paragraph`
   // below (far) ... whoot ?
   view(vnode: ParagraphVNode): m.Children | null | void {
     let { attrs, children } = vnode;
+    this.justify = attrs.justify;
 
     // Using the official mithril bindings, style is any (if defined) ?
     // This is a bit weird ; even for "native" components its structured
@@ -78,7 +93,8 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
 // programmers take.
 
 // The two-layer definition is not strictly required here since we have no
-// constructor.
+// constructor and only the constructor has to accepted not-yet-normalized
+// attributes AFAICT.
 interface SectionLoseAttrs {
   title: string;
   level?: 1 | 2 | 3 | 4 | 5 | 6;
@@ -93,16 +109,14 @@ interface SectionAttrs extends SectionLoseAttrs {
 
 interface SectionVNode extends m.CVnode<SectionAttrs> {}
 
-
-
 interface NonEmptyChildArray extends m.ChildArray {
-  0: m.Vnode<any, any>;    
+  0: m.Vnode<any, any>;
 }
 
 // TODO : change this for a function that performs the runtime check or throws
 //        and otherwise return the same argument with a proper TS type ?
 
-function starts_with_Paragraph(children: m.Children) {
+function starts_with_Paragraph(children: m.Children): children is NonEmptyChildArray {
   if (!Array.isArray(children)) {
     return false;
   }
@@ -121,10 +135,18 @@ function starts_with_Paragraph(children: m.Children) {
   return true;
 }
 
+// TODO: study the out-factorization of the header component and style here.
+//       This component does too much (internally). Yeah, that's almost done
+//       already.
+
+window.onresize = () => { console.log("*"); m.redraw()};
+
+// Question: can I MOVE the runIn option to the header ? Would it be wise ?
 export class Section implements m.ClassComponent<SectionAttrs> {
   view(vnode: SectionVNode) {
     let { attrs, children } = vnode;
-    let { title, level = 1, runIn = false, style = {}, ...htmlAttrs } = attrs;
+    let { title, level = 1, runIn = false, style = {} } = attrs;
+
     let headerStyle: { [key: string]: string } = {};
     if (level == 1) {
       headerStyle = {
@@ -144,6 +166,9 @@ export class Section implements m.ClassComponent<SectionAttrs> {
       };
     } else if (level == 3) {
       // TODO (optionally ? "Run-in") // can I EMULATE display: run-in ?
+      // Make section look at the "display" attribute in style ? and work
+      // from here ? Or top-level custom attribute ? Nota : the css prop
+      // works on the header, not the section ...
       headerStyle = {
         fontSize: "1em",
         lineHeight: "1.5em",
@@ -151,40 +176,36 @@ export class Section implements m.ClassComponent<SectionAttrs> {
         //marginTop: "0px",
         marginBottom: "0em",
       };
-      if (runIn) {
-        headerStyle.display = "inline";
-        headerStyle.marginRight = "1em";
-
-        // Shit the typechecking (compile-time and runtime) is a mess here ...
-        let checkedChildren : NonEmptyChildArray;
-        if (!(starts_with_Paragraph(children))) {
-          throw new ValueError();
-        } else {
-          checkedChildren = children as NonEmptyChildArray;
-        }
-        // The stuff should be wrapped in a function I guess.
-
-        let inpara = checkedChildren[0].children;
-        checkedChildren[0] = m(
-          Paragraph,
-          m("h1", { style: headerStyle }, title),
-          inpara
-        );
-        return m("section", { style }, children);
-      }
     }
-    return m(
-      "section",
-      { style },
-      m("h1", { style: headerStyle }, title),
-      children
-    );
+
+    if (runIn) {
+      headerStyle.display = "inline";
+      headerStyle.marginRight = "1em";
+
+      if (!starts_with_Paragraph(children)) {
+        throw new ValueError();
+      }
+      let inpara = children[0].children;
+      children[0] = m(
+        Paragraph,
+        m("h1", { style: headerStyle }, title),
+        inpara
+      );
+      return m("section", { style }, children);
+    } else {
+      return m(
+        "section",
+        { style },
+        m("h1", { style: headerStyle }, title),
+        children
+      );
+    }
   }
 }
 
 interface HeaderAttrs {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
-  style?: {[key: string]: string};
+  style?: { [key: string]: string };
   [htmlAttr: string]: any;
 }
 

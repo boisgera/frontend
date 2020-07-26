@@ -23,7 +23,7 @@ function main() {
         "button",
         {
           onclick: () => {
-            console.log("content:", content);
+            /* console.log("content:", content); */
             content = content + r` \blacksquare`;
           },
         },

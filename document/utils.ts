@@ -8,6 +8,11 @@ export function assert(condition: any, msg?: string): asserts condition {
   }
 }
 
+export class TypeError extends Error {}
+
+export class ValueError extends Error {}
+
+
 // String & Array Helpers
 // -----------------------------------------------------------------------------
 
@@ -77,6 +82,4 @@ export class CSS {
   }
 }
 
-export class TypeError extends Error {};
 
-export class ValueError extends Error {};

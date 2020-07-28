@@ -36,6 +36,9 @@ function onkeyup(event: KeyboardEvent) {
   }
 }
 
+// TODO: get rid if the static functions, associate them to the Data somehow
+// instead.
+
 class TODO implements m.ClassComponent<Data.TODO> {
   static toggle(key: number) {
     return () => {
@@ -69,6 +72,9 @@ class TODO implements m.ClassComponent<Data.TODO> {
     ])
   }    
 }
+
+// TODO : reduce duplication between TodoMVC and ActiveTODOs.
+//        Make a class factory.
 
 class TodoMVC {
   view() {  

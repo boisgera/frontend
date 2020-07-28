@@ -3,6 +3,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "@types/mithril": "^2.0.3",
     "mithril": "^2.0.4"
   }
 }

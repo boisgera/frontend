@@ -1,62 +1,65 @@
 import m from "mithril";
-import {assert} from "./utils";
 
-// Data
+// Todos
 // -----------------------------------------------------------------------------
-const data = {
-  TODOs: []  
+namespace Data {
+  export interface TODO {
+    key: number;
+    text: string;
+    checked: boolean;
+  }
 }
 
-window.data = data;
+const todos: Data.TODO[] = [];
 
-function bykey(key) {
-  for (let TODO of data.TODOs) {
-    if (TODO.key === key) {
-      return TODO;
+declare global {
+  interface Window { todos: Data.TODO[]; }
+}
+
+window.todos = todos;
+
+function bykey(key: number): Data.TODO | undefined {
+  for (let todo of todos) {
+    if (todo.key === key) {
+      return todo;
     }
   }    
 }
 
 // -----------------------------------------------------------------------------
-
-function onkeyup(event) {
+function onkeyup(event: KeyboardEvent) {
   let input = document.getElementById("input") as any;
 
-  if (event.key === 'Enter' || event.keyCode === 13) {
-    data.TODOs.push({text: input.value, checked: false, key: data.TODOs.length +1 });
+  if (event.key === "Enter") {
+    todos.push({ text: input.value, checked: false, key: todos.length +1 });
     input.value = "";
-    console.log(data);
   }
 }
-0
-function onchange(event) {
-  console.log("change");
-}
 
-class TODO {
-  static onchange(key) {
+class TODO implements m.ClassComponent<Data.TODO> {
+  static toggle(key: number) {
     return () => {
-      let todo = bykey(key);
+      let todo = bykey(key) as Data.TODO;
       todo.checked = !todo.checked;
     }
   }
 
-  static kill(key) {
+  static kill(key: number) {
     return () => {
-      for (let i=0; i < data.TODOs.length; i++) {
-        if (data.TODOs[i].key === key) {
-            data.TODOs.splice(i, 1);
+      for (let i=0; i < todos.length; i++) {
+        if (todos[i].key === key) {
+            todos.splice(i, 1);
         }
       }
     }
   }
 
-  view(vnode) {
+  view(vnode: m.CVnode<Data.TODO>){
     let {attrs} = vnode;
     let {key, text, checked} = attrs;
     return m("li", [
       m("input", 
-        {type: "checkbox", style: {marginRight: "1em"}, onchange: TODO.onchange(key)}
+        {type: "checkbox", style: {marginRight: "1em"}, onchange: TODO.toggle(key)}
       ), 
       !checked ? text : m("s", text),
       m("button", // TODO: display on TODO hover only.
@@ -72,9 +75,9 @@ let TODOMVC = {view: () =>
     m("label", {"for": "TODO"}, "Add TODO"),
     m("input", {id: "input", type: "text", placeholder: "Add TODO", onkeyup}),
     m("ul",
-      data.TODOs.map((todo) => m(TODO, todo))
+      todos.map((todo) => m(TODO, todo))
     ),
-    m("p", data.TODOs.length.toString() + " items.")
+    m("p", todos.length.toString() + " items.")
   ]
 }
 

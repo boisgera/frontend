@@ -59,7 +59,7 @@ class TODO implements m.ClassComponent<Data.TODO> {
     let {key, text, checked} = attrs;
     return m("li", [
       m("input", 
-        {type: "checkbox", style: {marginRight: "1em"}, onchange: TODO.toggle(key)}
+        {type: "checkbox", checked, style: {marginRight: "1em"}, onchange: TODO.toggle(key)}
       ), 
       !checked ? text : m("s", text),
       m("button", // TODO: display on TODO hover only.
@@ -70,19 +70,51 @@ class TODO implements m.ClassComponent<Data.TODO> {
   }    
 }
 
-let TODOMVC = {view: () => 
-  [
-    m("label", {"for": "TODO"}, "Add TODO"),
-    m("input", {id: "input", type: "text", placeholder: "Add TODO", onkeyup}),
-    m("ul",
-      todos.map((todo) => m(TODO, todo))
-    ),
-    m("p", todos.length.toString() + " items.")
-  ]
+class TodoMVC {
+  view() {  
+    return [
+      m("p", m("label", {"for": "TODO"}, "Add TODO")),
+      m("input", {id: "input", type: "text", placeholder: "Add TODO", onkeyup}),
+      m("ul",
+        todos.map((todo) => m(TODO, todo))
+      ),
+      m("p", 
+        todos.filter((todo) => (!todo.checked)).length.toString() + " items left.",
+        " ",
+        m("a", {href: "#!/all"}, "All"), 
+        " ", 
+        m("a", {href: "#!/active"}, "Active")
+      )
+    ]
+  }
+}
+
+class ActiveTodos {
+  view() {  
+    return [
+      m("p", m("label", {"for": "TODO"}, "Add TODO")),
+      m("input", {id: "input", type: "text", placeholder: "Add TODO", onkeyup}),
+      m("ul",
+        todos
+          .filter((todo) => (!todo.checked))
+          .map((todo) => m(TODO, todo))
+      ),
+      m("p", 
+        todos.filter((todo) => (!todo.checked)).length.toString() + " items.",
+        " ",
+        m("a", {href: "#!/all"}, "All"), 
+        " ", 
+        m("a", {href: "#!/active"}, "Active")
+      )
+    ]
+  }
 }
 
 function main() {
-  m.mount(document.body, TODOMVC);
+  m.route(document.body, "/all", {
+    "/all": TodoMVC,
+    "/active": ActiveTodos,
+  });
 }
 
 main();

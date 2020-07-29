@@ -1,106 +1,140 @@
 import m from "mithril";
 
-// Todos
+// Exceptions
+// -----------------------------------------------------------------------------
+class KeyError extends Error {};
+
+// Todos Data Model
 // -----------------------------------------------------------------------------
 interface TodoAttrs {
   key: number;
   text: string;
   checked: boolean;
-  }
 }
 
-const todos: Data.TODO[] = [];
+interface State {
+  count: number;
+  todos: TodoAttrs[];
+}
 
 declare global {
-  interface Window { todos: Data.TODO[]; }
+  interface Window { state: State; }
 }
 
-window.todos = todos;
+let state : State = {
+  count: 0,
+  todos: []
+}
+window.state = state;
 
-function bykey(key: number): Data.TODO | undefined {
-  for (let todo of todos) {
+// Q: merge data and method here in a "State" class (singleton ?) ?
+
+function bykey(key: number): TodoAttrs {
+  for (let todo of state.todos) {
     if (todo.key === key) {
       return todo;
     }
-  }    
+  }
+  throw new KeyError(`invalid key ${key}`);    
 }
 
 // -----------------------------------------------------------------------------
-function onkeyup(event: KeyboardEvent) {
-  let input = document.getElementById("input") as any;
+class Controller {
 
-  if (event.key === "Enter") {
-    todos.push({ text: input.value, checked: false, key: todos.length +1 });
+  // Create new todo
+  static submit() {
+    let input = document.getElementById("input") as HTMLInputElement;
+    state.count += 1;
+    state.todos.push({
+      text: input.value, 
+      checked: false, 
+      key: state.count, 
+    });
     input.value = "";
   }
-}
 
-function submit() {
-  let input = document.getElementById("input") as any; // TODO: solve ts issue.
-  todos.push({
-    text: input.value, 
-    checked: false, 
-    key: todos.length +1 
-  });
-  input.value = "";
-}
-
-// TODO: get rid if the static functions, associate them to the Data somehow
-// instead.
-
-function toggle(key: number) {
-  return () => {
-    let todo = bykey(key);
-    todo.checked = !todo.checked;
+  // Toggle todo checked/unchecked status.
+  static toggle(key: number) {
+    return () => {
+      let todo = bykey(key);
+      todo.checked = !todo.checked;
+    }
   }
-}
 
-function kill(key: number) {
-  return () => {
-    for (let i=0; i < todos.length; i++) {
-      if (todos[i].key === key) {
-          todos.splice(i, 1);
+  // Remove a todo from the list
+  static kill(key: number) {
+    return () => {
+      let todos = state.todos;
+      for (let i=0; i < todos.length; i++) {
+        if (todos[i].key === key) {
+            todos.splice(i, 1);
+            return;
+        }
       }
     }
   }
+
 }
 
-class TODO implements m.ClassComponent<Data.TODO> {
-  view(vnode: m.CVnode<Data.TODO>){
+class Todo implements m.ClassComponent<TodoAttrs> {
+
+  view(vnode: m.CVnode<TodoAttrs>){
     let {attrs} = vnode;
     let {key, text, checked} = attrs;
     return m("li", [
-      m("input", 
-        {type: "checkbox", checked, style: {marginRight: "1em"}, onchange: toggle(key)}
-      ), 
+      m("input", {
+        type: "checkbox", 
+        checked, 
+        style: {marginRight: "1em"}, 
+        onchange: Controller.toggle(key)
+      }), 
       !checked ? text : m("s", text),
-      m("button", // TODO: display on TODO hover only.
-        {style: {marginLeft: "1em"}, onclick: kill(key)},
+      // TODO: display on TODO hover only.
+      m("button", {
+          style: {marginLeft: "1em"}, 
+          onclick: Controller.kill(key)
+        },
         "X"
       ), 
     ])
   }    
+
 }
 
-// TODO : reduce duplication between TodoMVC and ActiveTODOs.
-//        Make a class factory.
+type TodoPredicate = (todo: TodoAttrs) => boolean;
 
-class TodoMVC {
-  view() {  
+function isChecked(todo: TodoAttrs) {
+  return todo.checked;
+}
+
+function isUnchecked(todo: TodoAttrs) {
+  return !isChecked(todo);
+}
+
+interface TodoListAttrs {}
+
+class TodoList implements m.ClassComponent<TodoListAttrs> {
+  static filter: TodoPredicate = (todo: TodoAttrs) => true;
+
+  constructor(vnode: m.CVnode) {}
+
+  view(vnode: m.CVnode<TodoListAttrs>) {
     return [
       m("p", m("label", {"for": "TODO"}, "Add TODO")),
       m("input", {
         id: "input", 
         type: "text", 
         placeholder: "Add TODO", 
-        onkeyup: (event) => { if (event.key === "Enter") submit() };
-
+        onkeyup: (event: KeyboardEvent) => { 
+          if (event.key === "Enter") Controller.submit(); 
+        }
       }),
       m("ul",
-        todos.map((todo) => m(TODO, todo))
+        state.todos.filter((this.constructor as any).filter)
+          .map((todo) => m(Todo, todo))
       ),
       m("p", 
-        todos.filter((todo) => (!todo.checked)).length.toString() + " items left.",
+        state.todos.filter(isUnchecked).length.toString() + " items left.",
         " ",
         m("a", {href: "#!/all"}, "All"), 
         " ", 
@@ -110,31 +144,18 @@ class TodoMVC {
   }
 }
 
-class ActiveTodos {
-  view() {  
-    return [
-      m("p", m("label", {"for": "TODO"}, "Add TODO")),
-      m("input", {id: "input", type: "text", placeholder: "Add TODO", onkeyup}),
-      m("ul",
-        todos
-          .filter((todo) => (!todo.checked))
-          .map((todo) => m(TODO, todo))
-      ),
-      m("p", 
-        todos.filter((todo) => (!todo.checked)).length.toString() + " items.",
-        " ",
-        m("a", {href: "#!/all"}, "All"), 
-        " ", 
-        m("a", {href: "#!/active"}, "Active")
-      )
-    ]
-  }
+class AllTodoList extends TodoList {
+  // (static) filter inherited from TodoList.
+}
+
+class ActiveTodoList extends TodoList {
+  static filter: TodoPredicate = isUnchecked;
 }
 
 function main() {
   m.route(document.body, "/all", {
-    "/all": TodoMVC,
-    "/active": ActiveTodos,
+    "/all": AllTodoList,
+    "/active": ActiveTodoList,
   });
 }
 

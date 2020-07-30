@@ -32,6 +32,7 @@ const state : State = {
 window.state = state;
 
 // Q: merge data and method here in a "State" class (singleton ?) ?
+//    merge State (model) and Controller (~ helper functions)
 
 function bykey(key: number): TodoAttrs {
   for (let todo of state.todos) {
@@ -136,7 +137,7 @@ interface TodoListAttrs {}
 class TodoList implements m.ClassComponent<TodoListAttrs> {
   static filter: TodoPredicate = (todo: TodoAttrs) => true; 
 
-  constructor(vnode: m.CVnode) {}
+  constructor(vnode: m.CVnode<TodoListAttrs>) {}
 
   view(vnode: m.CVnode<TodoListAttrs>) {
     return [

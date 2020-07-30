@@ -1,5 +1,9 @@
 import m from "mithril";
 
+// TODO:
+// Review MVC structure, see what can be done here 
+// (several files to begin with ?)
+
 // Exceptions
 // -----------------------------------------------------------------------------
 class KeyError extends Error {};
@@ -21,7 +25,7 @@ declare global {
   interface Window { state: State; }
 }
 
-let state : State = {
+const state : State = {
   count: 0,
   todos: []
 }
@@ -74,29 +78,45 @@ class Controller {
     }
   }
 
+  static clearCompleted() {
+    return () => {
+      state.todos = state.todos.filter(isUnchecked);
+    }
+  }
+
+  static allCompleted() {
+    return state.todos.every(isUnchecked);
+  }
+
 }
 
 class Todo implements m.ClassComponent<TodoAttrs> {
+  hover: boolean = false;
 
   view(vnode: m.CVnode<TodoAttrs>){
     let {attrs} = vnode;
     let {key, text, checked} = attrs;
-    return m("li", [
-      m("input", {
-        type: "checkbox", 
-        checked, 
-        style: {marginRight: "1em"}, 
-        onchange: Controller.toggle(key)
-      }), 
-      !checked ? text : m("s", text),
-      // TODO: display on TODO hover only.
-      m("button", {
-          style: {marginLeft: "1em"}, 
-          onclick: Controller.kill(key)
-        },
-        "X"
-      ), 
-    ])
+    return m("li", {
+        onmouseover: () => this.hover = true, 
+        onmouseout: () => this.hover = false
+      },
+      [
+        m("input", {
+          type: "checkbox", 
+          checked, 
+          style: {marginRight: "1em"}, 
+          onchange: Controller.toggle(key)
+        }), 
+        !checked ? text : m("s", text),
+        this.hover ?
+        m("button", {
+            style: {marginLeft: "1em"}, 
+            onclick: Controller.kill(key)
+          },
+          "X"
+        ) : false, 
+      ]
+    )
   }    
 
 }
@@ -114,7 +134,7 @@ function isUnchecked(todo: TodoAttrs) {
 interface TodoListAttrs {}
 
 class TodoList implements m.ClassComponent<TodoListAttrs> {
-  static filter: TodoPredicate = (todo: TodoAttrs) => true;
+  static filter: TodoPredicate = (todo: TodoAttrs) => true; 
 
   constructor(vnode: m.CVnode) {}
 
@@ -138,7 +158,13 @@ class TodoList implements m.ClassComponent<TodoListAttrs> {
         " ",
         m("a", {href: "#!/all"}, "All"), 
         " ", 
-        m("a", {href: "#!/active"}, "Active")
+        m("a", {href: "#!/active"}, "Active"),
+        " ",
+        m("a", {href: "#!/completed"}, "Completed"),
+        " ",
+        Controller.allCompleted() ?
+        undefined:
+        m("button", {onclick: Controller.clearCompleted()}, "Clear completed")
       )
     ]
   }
@@ -152,10 +178,15 @@ class ActiveTodoList extends TodoList {
   static filter: TodoPredicate = isUnchecked;
 }
 
+class CompletedTodoList extends TodoList {
+  static filter: TodoPredicate = isChecked;
+}
+
 function main() {
   m.route(document.body, "/all", {
     "/all": AllTodoList,
     "/active": ActiveTodoList,
+    "/completed": CompletedTodoList
   });
 }
 

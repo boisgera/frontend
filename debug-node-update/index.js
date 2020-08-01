@@ -13,7 +13,7 @@ class P {
   onupdate(vnode) {
     console.log("P.onupdate");
     console.log(vnode.dom);
-    vnode.dom.innerHTML = "<p>" + Date.now() + "<p>" + vnode.dom.innerHTML;
+    vnode.dom.innerHTML = "<b>" + Date.now() + "</b>" + vnode.dom.innerHTML;
   }
 }
 

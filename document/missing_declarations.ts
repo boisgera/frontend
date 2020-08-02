@@ -7,6 +7,10 @@ declare module "j2c" {
   function sheet(s: object): PseudoString;
 }
 
+declare module "uuid" {
+  function v4(): string;
+}
+
 declare module "hyphenation.fr" {}
 
 declare module "tex-linebreak" {

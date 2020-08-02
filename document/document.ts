@@ -1,12 +1,10 @@
 import m from "mithril";
 import "./missing_declarations"; // Typescript stuff
 
+import { v4 as uuid } from 'uuid';
+
 import frPatterns from "hyphenation.fr";
 import { createHyphenator, justifyContent } from "tex-linebreak";
-const hyphenate = createHyphenator(frPatterns);
-function justify(...nodes: Element[]) {
-  justifyContent(nodes, hyphenate);
-}
 
 import { ValueError } from "./utils";
 
@@ -37,33 +35,43 @@ import { ValueError } from "./utils";
    in the mithril types definition)
  */
 
+// Hyphenation
+// -----------------------------------------------------------------------------
+const hyphenate = createHyphenator(frPatterns);
+
+function justify(...nodes: Element[]) {
+  justifyContent(nodes, hyphenate);
+}
+
 interface ParagraphAttrs {
   justify: boolean; 
   [htmlAttr: string]: any;
 }
-
 type ParagraphVNode = m.CVnode<ParagraphAttrs>;
 type ParagraphVNodeDOM = m.CVnodeDOM<ParagraphAttrs>;
 
-
-
 export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
-
   justify: boolean = false;
 
   oncreate(vnode: ParagraphVNodeDOM) {
     this.onupdate(vnode);
   }
+
+  // This stuff will probably go badly with diffs (spans and brs are added); 
+  // re-creation should probably be forced.
+  // I am not sure since I am using the same text content over and over,
+  // but this is a risk. What key should I use ? the text content ? But I
+  // don't know what it is ! A uuid ? Since we don't know when NOT to re-justify,
+  // I guess that we should always re-run the justification.
   onupdate(vnode: ParagraphVNodeDOM) {
-    if (this.justify) {
-      console.log("j"); 
+    if (this.justify) { 
       justify(vnode.dom);
     }
   }
 
   // the same annotation but in the ABOVE methods breaks the use of `Paragraph`
   // below (far) ... whoot ?
-  view(vnode: ParagraphVNode): m.Children | null | void {
+  view(vnode: ParagraphVNode): m.Children {
     let { attrs, children } = vnode;
     this.justify = attrs.justify;
 
@@ -77,7 +85,7 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
       ...(attrs.style || {}),
     };
 
-    return m("p", attrs, children);
+    return [m("p", {key: uuid(), ...attrs}, children)];
   }
 }
 

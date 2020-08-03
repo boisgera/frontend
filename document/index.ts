@@ -8,6 +8,15 @@ function main() {
   assert(root !== null);
   m.mount(root, {
     view: () => [
+      m(Paragraph, "Simple préambule ..."),
+      m(
+        Section,
+        { level: 1, title: "Gabudouleu", headerDisplay: "run-in" },
+        m(
+          Paragraph, `Un paragraphe est une section `, m("span", {style: {marginBottom: "5em"}}, "stuff"), ` de texte en prose vouée au développement d'un point particulier souvent au moyen de plusieurs phrases, dans la continuité du précédent et du suivant.
+          Sur le plan typographique, le début d'un paragraphe est marqué par un léger renfoncement (alinéa) ou par un saut de ligne.
+          Le symbole du paragraphe est §. La fin d'un paragraphe était autrefois indiquée par un pied-de-mouche`
+        )),
       m(
         Section,
         { level: 1, title: "Le titre du document" },
@@ -44,7 +53,7 @@ function main() {
           ),
           m(
             Section,
-            { level: 3, title: "Sous-section", runIn: true },
+            { level: 3, title: "Sous-section", headerDisplay: "run-in" },
             m(
               Paragraph,
               "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"

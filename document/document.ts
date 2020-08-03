@@ -47,13 +47,13 @@ interface ParagraphAttrs {
   justify: boolean; 
   [htmlAttr: string]: any;
 }
-type ParagraphVNode = m.CVnode<ParagraphAttrs>;
-type ParagraphVNodeDOM = m.CVnodeDOM<ParagraphAttrs>;
+type ParagraphVnode = m.CVnode<ParagraphAttrs>;
+type ParagraphVnodeDOM = m.CVnodeDOM<ParagraphAttrs>;
 
 export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
   justify: boolean = false;
 
-  oncreate(vnode: ParagraphVNodeDOM) {
+  oncreate(vnode: ParagraphVnodeDOM) {
     this.onupdate(vnode);
   }
 
@@ -63,7 +63,7 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
   // but this is a risk. What key should I use ? the text content ? But I
   // don't know what it is ! A uuid ? Since we don't know when NOT to re-justify,
   // I guess that we should always re-run the justification.
-  onupdate(vnode: ParagraphVNodeDOM) {
+  onupdate(vnode: ParagraphVnodeDOM) {
     if (this.justify) { 
       justify(vnode.dom);
     }
@@ -71,7 +71,7 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
 
   // the same annotation but in the ABOVE methods breaks the use of `Paragraph`
   // below (far) ... whoot ?
-  view(vnode: ParagraphVNode): m.Children {
+  view(vnode: ParagraphVnode): m.Children {
     let { attrs, children } = vnode;
     this.justify = attrs.justify;
 
@@ -103,19 +103,19 @@ export class Paragraph implements m.ClassComponent<ParagraphAttrs> {
 // The two-layer definition is not strictly required here since we have no
 // constructor and only the constructor has to accepted not-yet-normalized
 // attributes AFAICT.
-interface SectionLoseAttrs {
-  title: string;
-  level?: 1 | 2 | 3 | 4 | 5 | 6;
-  runIn?: boolean;
-  style?: string | { [_: string]: string };
+interface SectionAttrs {
+  title: m.Children;
+  //level?: 1 | 2 | 3 | 4 | 5 | 6;
+  headerDisplay?: "inline" | "block" | "run-in"
+  //style?: string | { [_: string]: string };
   [htmlAttr: string]: any;
 }
 
-interface SectionAttrs extends SectionLoseAttrs {
-  style?: { [_: string]: string };
-}
+// interface SectionAttrs extends SectionLoseAttrs {
+//   style?: { [_: string]: string };
+// }
 
-interface SectionVNode extends m.CVnode<SectionAttrs> {}
+interface SectionVnode extends m.CVnode<SectionAttrs> {}
 
 interface NonEmptyChildArray extends m.ChildArray {
   0: m.Vnode<any, any>;
@@ -147,15 +147,16 @@ function starts_with_Paragraph(children: m.Children): children is NonEmptyChildA
 //       This component does too much (internally). Yeah, that's almost done
 //       already.
 
-window.onresize = () => { console.log("*"); m.redraw()};
+window.onresize = () => { console.log("*"); m.redraw() };
 
 // Question: can I MOVE the runIn option to the header ? Would it be wise ?
 export class Section implements m.ClassComponent<SectionAttrs> {
-  view(vnode: SectionVNode) {
+  view(vnode: SectionVnode) {
     let { attrs, children } = vnode;
-    let { title, level = 1, runIn = false, style = {} } = attrs;
+    let { title, level = 1, headerDisplay = "block", ...htmlAttrs } = attrs;
 
-    let headerStyle: { [key: string]: string } = {};
+    /*
+    let headerStyle = {};
     if (level == 1) {
       headerStyle = {
         fontSize: "2em",
@@ -184,30 +185,29 @@ export class Section implements m.ClassComponent<SectionAttrs> {
         //marginTop: "0px",
         marginBottom: "0em",
       };
-    }
+    } */
 
-    if (runIn) {
+    let style = htmlAttrs.style || {};
+    if (headerDisplay === "block" || headerDisplay === "inline") {
+      return m("section", { style }, m(Header, {level}, title), children);
+    } else { // "run-in"
+      let headerStyle: any = {};
       headerStyle.display = "inline";
       headerStyle.marginRight = "1em";
 
       if (!starts_with_Paragraph(children)) {
         throw new ValueError();
       }
+
       let inpara = children[0].children;
       children[0] = m(
         Paragraph,
-        m("h1", { style: headerStyle }, title),
+        m(Header, { level, style: headerStyle }, title),
         inpara
       );
+      console.log(children);
       return m("section", { style }, children);
-    } else {
-      return m(
-        "section",
-        { style },
-        m("h1", { style: headerStyle }, title),
-        children
-      );
-    }
+    } 
   }
 }
 
@@ -222,31 +222,31 @@ export class Header implements m.ClassComponent<HeaderAttrs> {
     let { attrs, children } = vnode;
     let { level = 1, ...htmlAttrs } = attrs;
 
-    let style: object = {};
+    let style = {};
     if (level == 1) {
       style = {
         fontSize: "2em",
-        lineHeight: "1.5",
+        lineHeight: "1.5rem", //"3",//"1.5",
         fontWeight: "bold",
-        marginTop: "0px",
-        marginBottom: "1.5rem",
+        //marginTop: "0px",
+        marginBottom: "1.5rem", // Let the parent container deal with this.
+        // Mmm OK, but what about lineheight then ?
       };
     } else if (level == 2) {
       style = {
         fontSize: Math.sqrt(2) + "em",
         lineHeight: "1.5rem",
         fontWeight: "bold",
-        marginTop: "0px",
+        //marginTop: "0px",
         marginBottom: "1.5rem",
       };
-    } else if (level == 3) {
-      // TODO (optionally ? "Run-in") // can I EMULATE display: run-in ?
+    } else if (level === 3 || level === 4 || level === 5 || level === 6) {
       style = {
         fontSize: "1em",
         lineHeight: "1.5em",
         fontWeight: "bold",
         //marginTop: "0px",
-        //marginBottom: "1.5rem"
+        marginBottom: "1.5rem"
       };
     }
     htmlAttrs.style = {

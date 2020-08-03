@@ -226,7 +226,7 @@ export class Header implements m.ClassComponent<HeaderAttrs> {
     if (level == 1) {
       style = {
         fontSize: "2em",
-        lineHeight: "1.5rem", //"3",//"1.5",
+        lineHeight: "1.5", //"1.5rem", //"3",//"1.5",
         fontWeight: "bold",
         //marginTop: "0px",
         marginBottom: "1.5rem", // Let the parent container deal with this.

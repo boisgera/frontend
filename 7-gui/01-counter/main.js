@@ -1,3 +1,4 @@
+import m from "mithril";
 
 class Counter {
     constructor(vnode) {

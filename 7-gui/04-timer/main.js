@@ -12,7 +12,6 @@ class Timer {
     }, 100);
   }
   view(vnode) {
-    let width = this.elapsedTime / this.duration * 100.0;
     return m(
       "div",
       {
@@ -28,10 +27,11 @@ class Timer {
           { style: { "grid-row-start": 1, "grid-column-start": 1 } },
           "Elapsed Time:"
         ),
-        m("span", {
+        m("progress", {
           style: { "grid-row-start": 1, "grid-column-start": 2,
-          width: `${width}%`,
-          "background-color": "lime"}
+          "color": "lime"},
+          max: this.duration,
+          value: this.elapsedTime,
         }),
         m(
           "span",

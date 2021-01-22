@@ -4,8 +4,12 @@ import m from "mithril";
 
 function makeFilter(substring) {
   function _filter(fullname) {
+    let pattern = substring.toLowerCase();
     let { name, surname } = fullname;
-    if (name.includes(substring) || surname.includes(substring)) {
+    if (
+      name.toLowerCase().includes(pattern) ||
+      surname.toLowerCase().includes(pattern)
+    ) {
       return true;
     } else {
       return false;
@@ -18,7 +22,7 @@ function makeFilter(substring) {
 
 class CRUD {
   constructor(vnode) {
-    this.selected = undefined;
+    this.selected = 0;
     this.substring = "";
     this.name = "";
     this.surname = "";
@@ -30,58 +34,100 @@ class CRUD {
   }
   view(vnode) {
     let options = [];
-    // So if we need to add the selected stuff, etc., the global filter to get the
-    // list becomes not so smart, we would be better with a classic for loop and
-    // an item-by-item substring test.
     let keep = makeFilter(this.substring);
-    console.log("----------");
-    for (let i=0; i < this.fullnames.length; i++) {
+    for (let i = 0; i < this.fullnames.length; i++) {
       let fullname = this.fullnames[i];
-      console.log("o", fullname);
-      let {name, surname} = fullname;
+      let { name, surname } = fullname;
       if (keep(fullname)) {
-          options.push(m("option", {key: i}, `${surname}, ${name}`));
+        let selected = i === this.selected;
+        options.push(
+          m(
+            "option",
+            { key: i, "data-key": i, selected },
+            `${surname}, ${name}`
+          )
+        );
       }
     }
 
-    // TODO : selected index.
-
-    // TODO: think of the selected and filter interaction ... We probably need keys here,
-    // to preserve the items identities in the filtering.
+    // "BUG" : there is an issue when we filter stuff ; some item may appear
+    //         to be selected, but it's not really. If unfilter, we'll see that.
+    //         Or if we delete during the filter, it is the previously selected
+    //         stuff that will be deleted. 
+    //         I am not even sure what the proper behavior should be ...
 
     return m(
       "div",
       { style: { display: "flex", "flex-direction": "column" } },
       [
         m("span", [
-          "Filter prefix:", 
-          m("input", { // TODO: force all elements to be visible (how ? 
+          "Filter prefix:",
+          m("input", {
+            // TODO: force all elements to be visible (how ?
             // The reference implementation does it with a select element but how ?)
             type: "text",
             value: this.substring,
-          oninput: (input) => {
-            this.substring = input.target.value;
-          } })]),
+            oninput: (input) => {
+              this.substring = input.target.value;
+            },
+          }),
+        ]),
         m("div", { style: { display: "flex", "flex-direction": "row" } }, [
-          m("select", { 
-            style: { height: "2em" },
-            onchange: (event) => {
-              this.selected = event.target.selectedIndex; // probably not what we want :
-              // we would end up with the index IN THE FILTERED LIST when we probably
-              // want to deal with the index in the total list. Dunno. We need some 
-              // double accounting anyway, whatever the strategy is.
-            } 
-          }, 
-            options),
+          m(
+            "select",
+            {
+              style: { height: "2em" },
+              onchange: (event) => {
+                let select = event.target;
+                let index = select.selectedIndex;
+                let key = parseInt(
+                  select.children[index].getAttribute("data-key")
+                );
+                this.selected = key;
+              },
+            },
+            options
+          ),
           m("div", { style: { display: "flex", "flex-direction": "column" } }, [
-            m("span", ["Name:", m("input", { type: "text" })]),
-            m("span", ["Surname:", m("input", { type: "text" })]),
+            m("span", [
+              "Name:",
+              m("input", {
+                type: "text",
+                oninput: (input) => {
+                  this.name = input.target.value;
+                },
+              }),
+            ]),
+            m("span", [
+              "Surname:",
+              m("input", {
+                type: "text",
+                oninput: (input) => {
+                  this.surname = input.target.value;
+                },
+              }),
+            ]),
           ]),
         ]),
         m("span", [
-          m("button", {}, "Create"),
-          m("button", {}, "Update"),
-          m("button", {}, "Delete"),
+          m(
+            "button",
+            {
+              onclick: () => {
+                this.fullnames.push({ name: this.name, surname: this.surname });
+              },
+            },
+            "Create"
+          ),
+          m("button", {}, "Update"), // Doing nothing, right ?
+          m("button", {"onclick": () => {
+            console.log(this.selected, this.fullnames.length);
+            if (0 <= this.selected && this.selected < this.fullnames.length) {
+                this.fullnames.splice(this.selected, 1);
+                this.selected = Math.min(this.selected, this.fullnames.length-1);    
+                console.log(this.selected, this.fullnames.length);
+            }
+          }}, "Delete"),
         ]),
       ]
     );
